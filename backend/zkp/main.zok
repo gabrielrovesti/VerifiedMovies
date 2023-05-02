@@ -1,0 +1,13 @@
+// p and q are factorization of n
+def main(private field p, private field q, field n) {
+    assert(p * q == n);
+    assert(p > 1);
+    assert(q > 1);
+    return;
+}
+
+//Link of functioning guide and code:
+//https://coingeek.com/create-your-first-zero-knowledge-proof-program-on-bitcoin-a-practical-step-by-step-guide/
+
+//Another useful reference with Remix info:
+//https://asecuritysite.com/zero/ethereum02
