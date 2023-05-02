@@ -1,2 +1,2 @@
 # VerifiedMovies
-My Sync Lab Project Implementation (hope it's definitive=
+My Sync Lab Project Implementation (hope it's definitive)
