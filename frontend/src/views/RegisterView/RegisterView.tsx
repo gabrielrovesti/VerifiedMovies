@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./RegisterView.css";
-import { ethers } from "ethers";
 
 export default function RegisterView() {
   const [firstName, setFirstName] = useState("");
@@ -31,27 +30,19 @@ export default function RegisterView() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
-    try {
-      // Creare un'istanza del provider di ethers.js
-      const provider = new ethers.JsonRpcProvider();
-  
-      // Ottenere l'indirizzo del contratto UserRegistration
-      const userRegistrationAddress = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
 
-      const userRegistrationABI = ["function registerUser(string memory firstName, string memory lastName, string memory dateOfBirth) public"];
-  
-      // Creare un'istanza del contratto UserRegistration
-      const userRegistrationContract = new ethers.Contract(userRegistrationAddress, userRegistrationABI, await provider.getSigner());
-  
-      // Chiamare la funzione "registerUser" del contratto
-      await userRegistrationContract.registerUser(firstName, lastName, dateOfBirth);
-      console.log("User registered successfully")
-    } catch (error) {
-      // Gestire l'errore e mostrare un messaggio all'utente
-      console.error(error);
-      
-    }
+    // Salva i dati inseriti dall'utente in localStorage
+    const userData = {
+      firstName,
+      lastName,
+      email,
+      password,
+      dateOfBirth,
+    };
+    localStorage.setItem('userData', JSON.stringify(userData));
+    
+    // Mostra un messaggio di conferma
+    alert('Registrazione avvenuta con successo!');
   };
 
   return (

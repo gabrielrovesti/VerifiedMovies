@@ -3,7 +3,7 @@ pragma solidity ^0.8.19 <0.9.0;
 
 struct Parent {
     bool valid;
-    string parentDid;
+    string parentId;
     string signature;
 }
 
@@ -22,15 +22,27 @@ struct Service {
     string endpoint;
 }
 
-struct DidDocument {
-    string did;
+struct DidDocumentData {
+    string id;
     bool deactivated;
-    VerificationMethod[] authentications;
+    mapping(string => VerificationMethod) authentications;
+    string[] authenticationIds;
     uint nextAuthenticationIndex;
-    VerificationMethod[] capabilityDelegations;
+    mapping(string => VerificationMethod) capabilityDelegations;
+    string[] capabilityDelegationIds;
     uint nextCapabilityDelegationIndex;
-    Service[] services;
+    mapping(string => Service) services;
+    string[] serviceIds;
     uint nextServiceIndex;
+    Parent parent;
+}
+
+struct DidDocument {
+    string id;
+    bool deactivated;
+    VerificationMethod[] authentication;
+    VerificationMethod[] capabilityDelegation;
+    Service[] service;
     Parent parent;
 }
 
@@ -45,10 +57,10 @@ struct ChainResolutionResult {
 }
 
 contract SelfSovereignIdentity {
-    mapping(string => DidDocument) private documents;
+    mapping(string => DidDocumentData) private documents;
     // Development-only
     string[] private keys;
-    
+
     //
     // Creates a new DID Document related to the user that has issued the transaction.
     //
@@ -61,7 +73,7 @@ contract SelfSovereignIdentity {
 
         return userDid;
     }
-    
+
     //
     // Creates a new DID Document stating the "delegation" of trust from the user that issued the
     // transaction (which acts as "certification authority") to the user with the specified DID.
@@ -86,7 +98,7 @@ contract SelfSovereignIdentity {
     }
 
     function initializeDidDocument(string memory userDid, address userAddress) private {
-        string memory authenticationId = string.concat(userDid, "#keys-1");
+        string memory authenticationId = string.concat(userDid, "#key-1");
         VerificationMethod memory authentication = VerificationMethod(
             1,
             authenticationId,
@@ -96,17 +108,20 @@ contract SelfSovereignIdentity {
             userAddress
         );
 
-        documents[userDid].did = userDid;
-        documents[userDid].deactivated = false;
-        documents[userDid].authentications.push(authentication);
-        documents[userDid].nextAuthenticationIndex = 2;
-        documents[userDid].nextCapabilityDelegationIndex = 1;
-        documents[userDid].nextServiceIndex = 1;
+        DidDocumentData storage document = documents[userDid];
+
+        document.id = userDid;
+        document.deactivated = false;
+        document.authentications[authenticationId] = authentication;
+        document.authenticationIds.push(authenticationId);
+        document.nextAuthenticationIndex = 2;
+        document.nextCapabilityDelegationIndex = 1;
+        document.nextServiceIndex = 1;
 
         // Development-only
         keys.push(userDid);
     }
-    
+
     //
     // Adds a capability delegation from the user that issued the transaction to the user whose DID
     // will be computed from the specified address.
@@ -120,42 +135,45 @@ contract SelfSovereignIdentity {
         string memory userDid = addressToDid(msg.sender);
         string memory controllerDid = addressToDid(controllerAddress);
 
-        DidDocument storage userDidDocument = documents[userDid];
+        DidDocumentData storage userDidDocument = documents[userDid];
+        string memory capabilityId = string.concat(
+            userDid,
+            "#capability-",
+            uintToString(userDidDocument.nextCapabilityDelegationIndex)
+        );
 
         VerificationMethod memory delegation = VerificationMethod(
             userDidDocument.nextCapabilityDelegationIndex,
-            string.concat(
-                userDid,
-                "#capability-",
-                uintToString(userDidDocument.nextCapabilityDelegationIndex)
-            ),
+            capabilityId,
             "EcdsaSecp256k1RecoveryMethod2020", // TODO,
             controllerDid,
             block.chainid,
             controllerAddress
         );
 
-        userDidDocument.capabilityDelegations.push(delegation);
+        userDidDocument.capabilityDelegations[capabilityId] = delegation;
+        userDidDocument.capabilityDelegationIds.push(capabilityId);
         userDidDocument.nextCapabilityDelegationIndex++;
     }
 
     // TODO: function removeCapabilityDelegation() public {}
     //TODO: addKey
     //TODO: removeKey
-    
+
     function addService(
         string memory serviceId,
         string memory serviceType,
         string memory endpoint
     ) public {
-        DidDocument storage document = documents[addressToDid(msg.sender)];
+        DidDocumentData storage document = documents[addressToDid(msg.sender)];
 
-        document.services.push(Service(serviceId, serviceType, endpoint));
+        document.services[serviceId] = Service(serviceId, serviceType, endpoint);
+        document.serviceIds.push(serviceId);
         document.nextServiceIndex++;
     }
 
     //TODO: function removeService(string memory serviceId) public {}
-    
+
     //
     // Deactivates the DID document related to the user that issued the transaction.
     //
@@ -170,10 +188,42 @@ contract SelfSovereignIdentity {
     // @return The DID document associated to the user with the specified DID.
     //
     function resolve(string memory did) public view returns (ResolutionResult memory) {
-        return ResolutionResult(documents[did]);
+        DidDocumentData storage document = documents[did];
+        VerificationMethod[] memory authentications = new VerificationMethod[](
+            document.authenticationIds.length
+        );
+        VerificationMethod[] memory capabilityDelegations = new VerificationMethod[](
+            document.capabilityDelegationIds.length
+        );
+        Service[] memory services = new Service[](document.serviceIds.length);
+
+        for (uint i = 0; i < authentications.length; i++) {
+            authentications[i] = document.authentications[document.authenticationIds[i]];
+        }
+
+        for (uint i = 0; i < capabilityDelegations.length; i++) {
+            capabilityDelegations[i] = document.capabilityDelegations[
+                document.capabilityDelegationIds[i]
+            ];
+        }
+
+        for (uint i = 0; i < services.length; i++) {
+            services[i] = document.services[document.serviceIds[i]];
+        }
+
+        DidDocument memory documentToReturn = DidDocument(
+            document.id,
+            document.deactivated,
+            authentications,
+            capabilityDelegations,
+            services,
+            document.parent
+        );
+
+        return ResolutionResult(documentToReturn);
         // TODO. resolve(did, resolutionOptions) -> (didResolutionMetadata, didDocument, didDocumentMetadata)
     }
-    
+
     //
     // Returns the chain of trust having as last node the user with the specified DID.
     //
@@ -183,15 +233,15 @@ contract SelfSovereignIdentity {
     //
     function resolveChain(string memory did) public view returns (ChainResolutionResult memory) {
         string[] memory userDids = new string[](10);
-        DidDocument memory currentDocument = documents[did];
+        DidDocumentData storage currentDocument = documents[did];
         uint8 index = 0;
         bool valid = true;
 
         do {
-            userDids[index] = currentDocument.did;
+            userDids[index] = currentDocument.id;
             valid = currentDocument.parent.valid;
             if (valid) {
-                currentDocument = documents[currentDocument.parent.parentDid];
+                currentDocument = documents[currentDocument.parent.parentId];
             }
             index++;
         } while (valid);
@@ -200,7 +250,18 @@ contract SelfSovereignIdentity {
     }
 
     // TODO: getCapabilityDelegations OR resolve().capabilityDelegations
-    
+
+    function getAuthentication(
+        string calldata didUrl
+    ) public view returns (VerificationMethod memory) {
+        // did:ssi-toc-eth:1234:40
+
+        string memory did = didUrl[0:61];
+        DidDocumentData storage document = documents[did];
+
+        return document.authentications[didUrl];
+    }
+
     //
     // Deletes all the DID documents. This method is used for development purposes only.
     //
@@ -208,12 +269,42 @@ contract SelfSovereignIdentity {
         uint size = keys.length;
 
         while (size > 0) {
+            DidDocumentData storage document = documents[keys[size - 1]];
+
+            // Delete authentications
+            uint authenticationsCount = document.authenticationIds.length;
+            while (authenticationsCount > 0) {
+                delete document.authentications[
+                    document.authenticationIds[authenticationsCount - 1]
+                ];
+                document.authenticationIds.pop();
+                authenticationsCount--;
+            }
+
+            // Delete capabilities
+            uint capabilitiesCount = document.capabilityDelegationIds.length;
+            while (capabilitiesCount > 0) {
+                delete document.capabilityDelegations[
+                    document.capabilityDelegationIds[capabilitiesCount - 1]
+                ];
+                document.capabilityDelegationIds.pop();
+                capabilitiesCount--;
+            }
+
+            // Delete services
+            uint servicesCount = document.serviceIds.length;
+            while (capabilitiesCount > 0) {
+                delete document.capabilityDelegations[document.serviceIds[servicesCount - 1]];
+                document.serviceIds.pop();
+                servicesCount--;
+            }
+
             delete documents[keys[size - 1]];
             keys.pop();
             size--;
         }
     }
-    
+
     //
     // Converts the specified address to the corresponding DID.
     //

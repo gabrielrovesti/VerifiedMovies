@@ -3,6 +3,14 @@
     padding: 40px;
     margin-top: 50px;
     color: #8c8c8c;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    min-height: 80px;
+    padding: 20px;
+    border-top: 1px solid #ddd;
+    text-align: center;
   }
   
 .footer-content {
