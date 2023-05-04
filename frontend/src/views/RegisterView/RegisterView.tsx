@@ -45,7 +45,7 @@ export default function RegisterView() {
     const userDid = await contract.methods.createDid().call({ from: accounts[0] });
 
     console.log(userDid);
-
+    setUserDid(userDid);
 
     // Salva i dati inseriti dall'utente in localStorage
     const userData = {
@@ -54,6 +54,7 @@ export default function RegisterView() {
       email,
       password,
       dateOfBirth,
+      userDid
     };
     localStorage.setItem('userData', JSON.stringify(userData));
     
@@ -119,6 +120,11 @@ export default function RegisterView() {
           Registrati
         </button>
       </form>
+      {userDid && (
+        <div>
+          Il tuo DID per poter accedere è: {userDid}
+        </div>
+      )}
     </div>
   );
 }
