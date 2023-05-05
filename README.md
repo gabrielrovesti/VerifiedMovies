@@ -4,15 +4,39 @@ Project for Sync Lab Stage Implementation made with:
 :pager: React + Vite + Typescript
  :page_with_curl: Solidity + Hardhat + Typescript
 
-## How to start
+## General Info
+- The project follows the starter template from: https://github.com/XamHans/React-Solidity-Typescript-Starter
+- It uses the Self Sovereign Identity code by Alessio de Biasi (SelfSovereignIdentity.sol) as a library in its implementation
+
+## How to start and run the project
 
 ### Backend
+
 pre: cd into /smart-contracts
 
+General commands:
 0) start local testnet ---> npm run testnet
 1) Compile contracts ---> npm run build
 2) Test contracts -->     npm run test
 3) Deploy contracts -->   npm run deploy
+
+Complete commands:
+First terminal:
+> npx hardhat node 
+or
+> npm run testnet
+
+Second terminal:
+> npx hardhat clean 
+> npx hardhat compile
+or
+> npm run compile
+
+> npx hardhat run --network localhost scripts/deploy.ts
+or
+> npm run deploy
+
+- Copy the 'SelfSovereignIdentity.sol' that generated from the deploy script into the 'frontend/src/contracts' folder
 
 ### Frontend
 pre: cd into /frontend
@@ -21,6 +45,5 @@ pre: cd into /frontend
 2) start frontend ---> npm run dev
 3) build --> npm run build
 
-Other things:
-- the project follows the starter template from: https://github.com/XamHans/React-Solidity-Typescript-Starter
-- it uses the Self Sovereign Identity code by Alessio de Biasi as a library in its implementation
+- On a terminal instance: 
+> npm start

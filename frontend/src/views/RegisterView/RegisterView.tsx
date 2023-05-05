@@ -37,7 +37,7 @@ export default function RegisterView() {
 
     // Connessione a Web3 e al contratto
     const web3 = new Web3('http://localhost:8545');
-    const contractAddress = '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512' //have to change it overtime, I guess
+    const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3' //have to change it overtime, I guess
     const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
 
     // Crea il DID dell'utente
@@ -122,7 +122,7 @@ export default function RegisterView() {
       </form>
       {userDid && (
         <div>
-          Il tuo DID per poter accedere è: {userDid}
+          Generato il tuo identificatore decentralizzato. Puoi utilizzarlo per accedere.
         </div>
       )}
     </div>
