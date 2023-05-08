@@ -84,6 +84,8 @@ body::before {
 .social-proof {
     max-width: 800px;
     text-align: center;
+    display: flex;
+    flex-direction: row;
     color: #fff;
 }
 

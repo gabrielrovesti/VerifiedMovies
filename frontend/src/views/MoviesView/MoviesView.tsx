@@ -1,5 +1,4 @@
 import React from 'react';
-import ethers from 'ethers';
 
 export default function MoviesView() {
     return (

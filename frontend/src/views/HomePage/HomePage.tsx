@@ -1,7 +1,17 @@
-import React from "react";
-import "./Index.css";
+import {useEffect} from "react";
+import "./HomePage.css";
+import CreateDID from "../../utils/CreateDID";
 
-export default function Index() {
+export default function HomePage() {
+  useEffect(() => {
+    async function createAndStoreDID() {
+      const userDID = await CreateDID();
+      console.log(userDID);
+      localStorage.setItem(userDID, JSON.stringify(userDID));
+    }
+    createAndStoreDID();
+  }, []);
+
   return (
     <div className="index">
       <div className="hero">
@@ -11,7 +21,6 @@ export default function Index() {
         </p>
       </div>
       <div className="social-proof">
-        <h2>Cosa dicono i nostri utenti</h2>
         <div className="testimonial">
           <p>"Ho apprezzato molto l'ampia selezione di film per tutta la famiglia. Grazie VerifiedMovies!"</p>
           <p className="author">- Maria R.</p>
