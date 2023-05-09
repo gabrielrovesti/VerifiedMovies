@@ -1,8 +1,9 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState } from "react";
 import "./RegisterView.css";
-import CreateDID from "../../utils/CreateDID";
+import { AbiItem } from 'web3-utils';
 import Web3 from "web3";
 import SelfSovereignIdentity from "../../contracts/SelfSovereignIdentity.json";
+
 
 export default function RegisterView() {
   const [username, setUsername] = useState("");
@@ -13,7 +14,6 @@ export default function RegisterView() {
   const [age, setAge] = useState(0);
   const [randomNumber, setRandomNumber] = useState(0);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [inputRandomNumber, setInputRandomNumber] = useState('');
 
 const handleUsernameChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setUsername(event.target.value);
@@ -44,15 +44,60 @@ const handleDidChange = (event: { target: { value: React.SetStateAction<string>;
     setDid(event.target.value);
 };
 
-const handleVerificationSubmit = () => {
-  if (parseInt(inputRandomNumber) === randomNumber) {
-  // Save user data to localStorage
+const handleVerificationSubmit = async () => {
+
+  // Connessione a Web3 e al contratto
+  const web3 = new Web3('http://localhost:8545');
+  const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+  const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
+
+  // Prendo l'account dell'utente
+  const accounts = await web3.eth.getAccounts();
+  console.log("accounts: " + accounts[0]);
+  
+  // Firmo il messaggio
+  const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
+  console.log("signature: " + signature);
+
+  // Create a new DID in case the user doesn't have one
+  const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
+  console.log("userDid: " + userDid);
+
+  // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
+  // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
+  const proof = {
+    "@context": "https://www.w3.org/2018/credentials/v1",
+    "type": "DataIntegrityProof",
+    "created": new Date().toISOString(),
+    "proofPurpose": "authentication",
+    "verificationMethod": localStorage.getItem('userDID') === '' ? localStorage.getItem('userDID') : userDid,
+    "value": randomNumber.toString(),
+    "signatureValue": signature,
+  };
+
+  // Recupero il didUrl da verificationMethod e lo uso per verificare la firma associata all'account X
+  const didUrl = proof.verificationMethod;
+  console.log("didUrl: " + didUrl);
+
+  //Chiamo lo smart contract per verifica
+  const verification = await contract.methods.getAuthentication(didUrl).call();
+  console.log("verification: " + JSON.stringify(verification));  
+
+  // Controllo con recover di Web3 se corrispondono il numero di prima, come signature il proof (non prefissato di suo)
+  // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
+
+  const recovered = await web3.eth.accounts.recover(randomNumber.toString(), proof.signatureValue);
+  console.log("recovered: " + recovered);
+
+  // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
+
+  if (recovered === accounts[0]) {
   const userData = { username,email,password,dateOfBirth,did,age};
       localStorage.setItem('userData', JSON.stringify(userData));
       setShowVerificationModal(false);
       alert('Registrazione avvenuta con successo!');
   } else {
-      alert('Il numero inserito non corrisponde a quello generato, riprova.');
+      alert('La verifica non è andata a buon fine, si prega di riprovare.');
   }
 };
 
@@ -62,9 +107,11 @@ const handleVerificationClose = () => {
 
 const handleSubmit = (event: { preventDefault: () => void; }) => {
     event.preventDefault();
+
     // Calculate user age
     const age = calculateAge(dateOfBirth);
     setAge(age);
+
     // Generate random number for verification
     const randomNumber = Math.floor(Math.random() * 1000000) + 1;
     setRandomNumber(randomNumber);
@@ -118,14 +165,6 @@ return (
           <h2>Dimostra che sei tu. </h2>
           <p>Questo è il tuo numero:</p>
             <h1>{randomNumber}</h1>
-            <input
-              type="text"
-              placeholder="Inserisci qui il numero"
-              value={inputRandomNumber}
-              onChange={(event) =>
-              setInputRandomNumber(event.target.value)
-              }
-            />
           <div className="modal-buttons">
             <button onClick={handleVerificationSubmit}>Verifica</button>
             <button onClick={handleVerificationClose}>Chiudi</button>

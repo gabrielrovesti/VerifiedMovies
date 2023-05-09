@@ -51,6 +51,7 @@ const config: HardhatUserConfig = {
     cache: './cache',
     artifacts: './artifacts'
   },
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
       chainId: 1337
