@@ -31,13 +31,7 @@ Take one account from the hardhat node and login in Metamask. Copy one private k
 a custom net which can find Hardhat (name it, for instance Hardhat-Localhost with localhost:8545 as address), and you will get 10000 ETH as test.
 
 Second terminal:
-> npx hardhat clean 
-> npx hardhat compile
-or
 > npm run compile
-
-> npx hardhat run --network localhost scripts/deploy.ts
-or
 > npm run deploy
 
 - Copy the 'SelfSovereignIdentity.sol' that generated from the deploy script into the 'frontend/src/contracts' folder
