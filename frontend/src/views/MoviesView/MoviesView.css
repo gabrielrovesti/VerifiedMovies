@@ -1,0 +1,102 @@
+.movies-container {
+    padding: 20px;
+    color: white;
+    text-align: center;
+}
+  
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+}
+  
+.movie-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0.2);
+    transition: transform 0.3s ease-in-out;
+}
+  
+.movie-card:hover {
+    transform: translateY(-5px);
+}
+  
+.movie-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+  
+.movie-info {
+    padding: 10px;
+}
+  
+.age-rating {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+  
+.age-rating-r {
+    background-color: red;
+    color: white;
+}
+  
+.age-rating-pg-13 {
+    background-color: orange;
+    color: white;
+}
+  
+.age-rating-not-rated {
+    background-color: gray;
+    color: white;
+}
+  
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+.verification-modal {
+    background-color: white;
+    color: black;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+  
+.verification-modal h2 {
+    margin-top: 0;
+}
+  
+.verification-modal p {
+    margin-bottom: 20px;
+}
+  
+.verification-modal button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+  
+.verification-modal button:hover {
+    background-color: #0062cc;
+}

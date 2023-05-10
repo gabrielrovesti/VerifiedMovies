@@ -43,16 +43,16 @@ export default function LoginView() {
   
     // Crea un nuovo DID per l'utente nel caso non lo abbia già (se lo ha, lo recupera dal local storage, caso mio)
     const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
-    console.log("userDid: " + userDid);
   
     // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
     // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
     const proof = {
-      "@context": "https://www.w3.org/2018/credentials/v1",
+      "@context": ["https://w3id.org/security/data-integrity/v1"],
       "type": "DataIntegrityProof",
+      "cryptosuite": "ecdsa-2022",
       "created": new Date().toISOString(),
-      "proofPurpose": "authentication",
-      "verificationMethod": localStorage.getItem('userDID') === '' ? localStorage.getItem('userDID') : userDid,
+      "proofPurpose": "assertionMethod",
+      "verificationMethod": localStorage.getItem('userDID') === '' ? localStorage.getItem('userDID') : userDid + "#keys-1",
       "value": randomNumber.toString(),
       "signatureValue": signature,
     };
