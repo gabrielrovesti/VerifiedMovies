@@ -10,8 +10,12 @@ import fifthImage from './movies/fifth.png';
 import sixthImage from './movies/sixth.png';
 
 //Import VC and VP types
-import { VerifiablePresentation, VerifiableCredential } from '../../types/index';
+import { VerifiablePresentation } from '../../types/index';
 
+import SelfSovereignIdentity from "../../contracts/SelfSovereignIdentity.json";
+import Web3 from "web3";
+import { AbiItem } from 'web3-utils';
+import { IssuerObject, LinkedDataObject, VCDIVerifiableCredential, VerifiableCredential } from '../../types/VerifiableCredential';
 
 interface Movie {
   id: string;
@@ -100,18 +104,29 @@ export default function MoviesView() {
 
   async function handleVerificationSubmit() {
     try {
+      // Connessione a Web3 e al contratto
+      const web3 = new Web3('http://localhost:8545');
+      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+      const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress); //TODO - chiamare il contratto per verificare la catena di credenziali
+      console.log("contract: " + contract); //useless, but to not have warning now
+
+      // Prendo l'account dell'utente
+      const accounts = await web3.eth.getAccounts();
+      console.log("accounts: " + accounts[0]);
+        
       // recupero il DID dell'utente
       const userDID = await getUserDID();
-  
+
+      if (userDID !== null) {
       // recupero la VC dell'utente
       const vc = await retrieveVC(userDID);
-  
-      // creo la VP con l'età e il DID dell'utente
-      const vp = await createVP(vc);
-  
+      
+      // creo la VP con l'età e il DID dell'utente, che è l'holder della VC
+      const vp = await createVP([vc], userDID);
+
       // verifico la VP con il servizio di verifica
       const isVerified = await verifyVP(vp);
-  
+
       // mostro il risultato all'utente
       if (isVerified) {
         console.log('Verifica avvenuta con successo!');
@@ -120,6 +135,10 @@ export default function MoviesView() {
       } else {
         alert('Verification failed!');
       }
+      } else {
+        console.log('User DID is null');
+      }
+
     } catch (error) {
       console.error('Error during verification:', error);
       alert('An error occurred during verification');
@@ -133,50 +152,147 @@ export default function MoviesView() {
   }
   
   async function retrieveVC(userDID: string | null) {
-    // recupero la VC dell'utente dal suo DID, ad esempio da un server di identità
-    const vc = {
-      '@context': ['https://www.w3.org/2018/credentials/v1'],
-      type: ['VerifiableCredential', 'AgeCredential'],
-      issuer: 'did:example:456',
-      issuanceDate: '2023-05-10T12:00:00Z',
-      credentialSubject: {
+      // recupero la VC dell'utente dal suo DID, ad esempio da un server di identità
+      
+      const vc: VCDIVerifiableCredential = {
+        '@context': ['https://www.w3.org/2018/credentials/v1'],
+        id: 'http://localhost:3000/credentials/1',
+        type: ['VerifiableCredential', 'AgeCredential'],
+          credentialSchema: {
+            id: "did:example:cdf:35LB7w9ueWbagPL94T9bMLtyXDj9pX5o",
+            type: "did:example:schema:22KpkXgecryx9k7N6XN1QoN3gXwBkSU8SfyyYQG",
+          },        
+        issuer: {
+          id: 'did:example:456', //TODO - sostituire con il DID del server di identità
+        } as IssuerObject,
+        issuanceDate: new Date().toISOString(),
+        credentialSubject: {
         id: userDID,
-        age: 25
-      },
-      proof: {
-        type: 'Ed25519Signature2018',
-        created: '2023-05-10T12:00:00Z',
-        verificationMethod: 'did:example:456#key-1',
-        signatureValue: '...'
-      }
-    };
-    return vc;
-  }
+        age: 25,
+        type: 'VerifiableCredential',
+        } as LinkedDataObject,
+        proof: {
+          type: "CLSignature2019",
+          issuerData: "did:example:456",
+          attributes: "age",
+          signature: "", //TODO - aggiungere la firma
+          signatureCorrectnessProof: "", //TODO - aggiungere la correttezza sulla firma
+        },
+      };
+      return vc;
+    }
   
-  async function createVP(vc: { '@context': string[]; type: string[]; issuer: string; issuanceDate: string; credentialSubject: { id: any; age: number; }; proof: { type: string; created: string; verificationMethod: string; signatureValue: string; }; }) {
-    // creo la VP con l'età e il DID dell'utente
-    const vp = {
-      '@context': ['https://www.w3.org/2018/credentials/v1'],
-      type: ['VerifiablePresentation'],
-      verifiableCredential: [vc],
-      proof: {
-        type: 'Ed25519Signature2018',
-        created: '2023-05-10T12:00:00Z',
-        verificationMethod: 'did:example:123#key-1',
-        proofPurpose: 'authentication',
-        challenge: '...',
-        domain: 'example.com',
-        presentationSubmission: {}
+    async function createVP(vcs: VerifiableCredential[], holder: string): Promise<VerifiablePresentation> {
+      // Create an array of `credentials` objects with each VC and its nested `proof` object according to the W3C type
+      const credentials = vcs.map(vc => {
+        return {
+          '@context': [
+            "https://www.w3.org/2018/credentials/v1",
+            "https://www.w3.org/2018/credentials/examples/v1"
+          ],
+          type: ["VerifiableCredential"],
+          credentialSchema: {
+            id: "did:example:cdf:35LB7w9ueWbagPL94T9bMLtyXDj9pX5o",
+            type: "did:example:schema:22KpkXgecryx9k7N6XN1QoN3gXwBkSU8SfyyYQG"
+          },
+          issuer: "did:example:Wz4eUg7SetGfaUVCn8U9d62oDYrUJLuUtcy619",
+          issuanceDate: new Date().toISOString(),
+          credentialSubject: {
+            type: 'VerifiableCredential',
+          },
+          proof: {
+            type: "AnonCredDerivedCredentialv1",
+            primaryProof: "cg7wLNSi48K5qNyAVMwdYqVHSMv1Ur8i...Fg2ZvWF6zGvcSAsym2sgSk737",
+            nonRevocationProof: "mu6fg24MfJPU1HvSXsf3ybzKARib4WxG...RSce53M6UwQCxYshCuS3d2h"
+          }
+        };
+      });
+    
+      // Create the Verifiable Presentation object with the nested array of credentials and the top-level proof object
+      const vp: VerifiablePresentation = {
+        '@context': [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://www.w3.org/2018/credentials/examples/v1"
+        ],
+        type: "VerifiablePresentation",
+        verifiableCredential: credentials,
+        proof: {
+          "type": "AnonCredPresentationProofv1",
+          "proofValue": "DgYdYMUYHURJLD7xdnWRinqWCEY5u5fK...j915Lt3hMzLHoPiPQ9sSVfRrs1D"
+        }
+      };
+
+      // Sign the `presentation` object and set the `proofValue`
+      const proofValue = await signPresentation(vp);
+      vp.proof.proofValue = proofValue;
+      
+      // Return the signed `presentation` object
+      return vp;
+    }
+
+    
+    // Function to sign the presentation object
+    async function signPresentation(presentation: any): Promise<string> {
+      
+      // Create an array of `credentialProofs` objects with each VC's proof value
+      const credentialProofs = presentation.verifiableCredential.map((vc: { proof: { primaryProof: any; nonRevocationProof: any; }; }) => {
+        return {
+          primaryProof: vc.proof.primaryProof,
+          nonRevocationProof: vc.proof.nonRevocationProof
+        }
+      })
+      
+      // Sign the `credentailProofs` object
+      const credentialProofsSignature = await signCredentialProofs(credentialProofs)
+      
+      // Create the `presentationProof` object
+      const presentationProof = {
+        type: 'AnonCredPresentationProofv1',
+        credentialProofs: credentialProofs,
+        proofValue: credentialProofsSignature
       }
-    };
-    return vp;
-  }
+      
+      // Sign the `presentationProof` object
+      const proofValue = await signData(presentationProof)
+      
+      // Return the proof value
+      return proofValue
+    }
+    
+    // Function to sign credential proofs
+    async function signCredentialProofs(credentialProofs: any): Promise<string> {
+      // Replace this with your own implementation of signing credential proofs
+      // For example, if you are using a CL signature scheme, you can use the `signCredentialProofs` function from the `cl-signatures` library
+      const signatureValue = await signCredentialProofs(credentialProofs)
+      return signatureValue
+    }
+    
+    // Function to sign data with a private key
+    async function signData(data: any): Promise<string> {
+      // Replace this with your own implementation of signing data with a private key
+      // For example, if you are using an EdDSA signature scheme, you can use the `signData` function from the `ed25519-signatures` library
+      const privateKey = await getPrivateKey()
+      const signatureValue = await signData(privateKey)
+      return signatureValue
+    }
+    
+    // Function to get the private key
+    async function getPrivateKey(): Promise<any> {
+      // Replace this with your own implementation of getting the private key
+      const privateKey = "";
+      return privateKey
+    }
+    
   
-  async function verifyVP(vp: { '@context': string[]; type: string[]; verifiableCredential: any[]; proof: { type: string; created: string; verificationMethod: string; proofPurpose: string; challenge: string; domain: string; presentationSubmission: {}; }; }) {
-    // verifico la VP con il servizio di verifica, ad esempio usando una libreria come jsonld-signatures
-    const isVerified = true; 
-    return isVerified;
-  }
+    async function verifyVP(vp: VerifiablePresentation): Promise<boolean> {
+      // TODO - We have to properly write it; for now, just to pass type checks
+
+      if (vp.holder === null) {
+        return false;
+      }
+      return true;
+    }
+    
   
 
   const renderMovies = () => {
