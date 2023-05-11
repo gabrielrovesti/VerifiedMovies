@@ -159,8 +159,8 @@ export default function MoviesView() {
         id: 'http://localhost:3000/credentials/1',
         type: ['VerifiableCredential', 'AgeCredential'],
           credentialSchema: {
-            id: "did:example:cdf:35LB7w9ueWbagPL94T9bMLtyXDj9pX5o",
-            type: "did:example:schema:22KpkXgecryx9k7N6XN1QoN3gXwBkSU8SfyyYQG",
+            id: userDID ? userDID : "",
+            type: userDID + "#ageCredentialSchema",
           },        
         issuer: {
           id: 'did:example:456', //TODO - sostituire con il DID del server di identità
@@ -175,6 +175,7 @@ export default function MoviesView() {
           type: "CLSignature2019",
           issuerData: "did:example:456",
           attributes: "age",
+          // we can put sign and getProof from web3 here
           signature: "", //TODO - aggiungere la firma
           signatureCorrectnessProof: "", //TODO - aggiungere la correttezza sulla firma
         },
@@ -183,6 +184,7 @@ export default function MoviesView() {
     }
   
     async function createVP(vcs: VerifiableCredential[], holder: string): Promise<VerifiablePresentation> {
+      
       // Create an array of `credentials` objects with each VC and its nested `proof` object according to the W3C type
       const credentials = vcs.map(vc => {
         return {
@@ -202,6 +204,7 @@ export default function MoviesView() {
           },
           proof: {
             type: "AnonCredDerivedCredentialv1",
+            //TODO - capire come generarsi le proof
             primaryProof: "cg7wLNSi48K5qNyAVMwdYqVHSMv1Ur8i...Fg2ZvWF6zGvcSAsym2sgSk737",
             nonRevocationProof: "mu6fg24MfJPU1HvSXsf3ybzKARib4WxG...RSce53M6UwQCxYshCuS3d2h"
           }
@@ -224,13 +227,13 @@ export default function MoviesView() {
 
       // Sign the `presentation` object and set the `proofValue`
       const proofValue = await signPresentation(vp);
+      console.log('proofValue', proofValue);
       vp.proof.proofValue = proofValue;
       
       // Return the signed `presentation` object
       return vp;
     }
 
-    
     // Function to sign the presentation object
     async function signPresentation(presentation: any): Promise<string> {
       
@@ -241,7 +244,7 @@ export default function MoviesView() {
           nonRevocationProof: vc.proof.nonRevocationProof
         }
       })
-      
+     
       // Sign the `credentailProofs` object
       const credentialProofsSignature = await signCredentialProofs(credentialProofs)
       
@@ -254,6 +257,7 @@ export default function MoviesView() {
       
       // Sign the `presentationProof` object
       const proofValue = await signData(presentationProof)
+      console.log('proofValue', proofValue);
       
       // Return the proof value
       return proofValue
@@ -283,7 +287,6 @@ export default function MoviesView() {
       return privateKey
     }
     
-  
     async function verifyVP(vp: VerifiablePresentation): Promise<boolean> {
       // TODO - We have to properly write it; for now, just to pass type checks
 
@@ -292,8 +295,6 @@ export default function MoviesView() {
       }
       return true;
     }
-    
-  
 
   const renderMovies = () => {
     return movies.map((movie) => {

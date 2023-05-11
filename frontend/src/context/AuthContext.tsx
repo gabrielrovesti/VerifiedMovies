@@ -1,5 +1,4 @@
 import React, { useState, createContext, useEffect, useContext} from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 type User = {
   did: string;
@@ -26,8 +25,6 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const logout = () => {
     localStorage.removeItem("userIsLoggedIn");

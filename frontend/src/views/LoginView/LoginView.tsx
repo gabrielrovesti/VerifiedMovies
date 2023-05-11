@@ -64,6 +64,8 @@ export default function LoginView() {
     //Chiamo lo smart contract per verifica
     const verification = await contract.methods.getAuthentication(didUrl).call();
     console.log("verification: " + JSON.stringify(verification));  
+
+    // TODO - consider putting here web3.eth.personal.ecRecover(dataThatWasSigned, signature [, callback])
   
     // Controllo con recover di Web3 se corrispondono il numero di prima, come signature il proof (non prefissato di suo)
     // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
