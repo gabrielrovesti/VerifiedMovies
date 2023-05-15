@@ -11,6 +11,5 @@ export default async function CreateDID(){
     // Crea il DID dell'utente
     const accounts = await web3.eth.getAccounts();
     const userDid = await contract.methods.createDid().call({ from: accounts[0] });  
-
     return userDid;
 }

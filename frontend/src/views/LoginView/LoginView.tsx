@@ -8,7 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function LoginView() {
 
-  const [did, setDid] = useState(localStorage.getItem('userDID') || '');
+  const [did, setDid] = useState('');
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [randomNumber, setRandomNumber] = useState(0);
   const navigate = useNavigate();
@@ -42,7 +42,8 @@ export default function LoginView() {
     console.log("signature: " + signature);
   
     // Crea un nuovo DID per l'utente nel caso non lo abbia già (se lo ha, lo recupera dal local storage, caso mio)
-    const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
+
+    const userDid = await contract.methods.createDid().send({ from: accounts[0] }); 
   
     // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
     // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
@@ -52,20 +53,14 @@ export default function LoginView() {
       "cryptosuite": "ecdsa-2022",
       "created": new Date().toISOString(),
       "proofPurpose": "assertionMethod",
-      "verificationMethod": localStorage.getItem('userDID') === '' ? localStorage.getItem('userDID') : userDid + "#keys-1",
+      "verificationMethod": userDid,
       "value": randomNumber.toString(),
       "signatureValue": signature,
     };
   
-    // Recupero il didUrl da verificationMethod e lo uso per verificare la firma associata all'account X
-    const didUrl = proof.verificationMethod;
-    console.log("didUrl: " + didUrl);
-  
     //Chiamo lo smart contract per verifica
-    const verification = await contract.methods.getAuthentication(didUrl).call();
+    const verification = await contract.methods.getAuthentication("did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266#key-1").call();
     console.log("verification: " + JSON.stringify(verification));  
-
-    // TODO - consider putting here web3.eth.personal.ecRecover(dataThatWasSigned, signature [, callback])
   
     // Controllo con recover di Web3 se corrispondono il numero di prima, come signature il proof (non prefissato di suo)
     // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
@@ -75,7 +70,7 @@ export default function LoginView() {
   
     // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
   
-    if (recovered === accounts[0]) {
+    if (recovered === verification[5]) {
         localStorage.setItem("userIsLoggedIn", "true");
         localStorage.setItem('loggedDID', userDid);
         setUser({ did: userDid });

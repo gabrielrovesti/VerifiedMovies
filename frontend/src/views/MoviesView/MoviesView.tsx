@@ -11,11 +11,20 @@ import sixthImage from './movies/sixth.png';
 
 //Import VC and VP types
 import { VerifiablePresentation } from '../../types/index';
-
 import SelfSovereignIdentity from "../../contracts/SelfSovereignIdentity.json";
 import Web3 from "web3";
 import { AbiItem } from 'web3-utils';
 import { IssuerObject, LinkedDataObject, VCDIVerifiableCredential, VerifiableCredential } from '../../types/VerifiableCredential';
+
+//CL Signature
+const EC = require('elliptic').ec;
+const BN = require('bn.js');
+
+interface Signature {
+  r: typeof BN;
+  s: typeof BN;
+}
+
 
 interface Movie {
   id: string;
@@ -107,10 +116,10 @@ export default function MoviesView() {
       // Connessione a Web3 e al contratto
       const web3 = new Web3('http://localhost:8545');
       const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
-      const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress); //TODO - chiamare il contratto per verificare la catena di credenziali
+      const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress); 
       console.log("contract: " + contract); //useless, but to not have warning now
 
-      // Prendo l'account dell'utente
+      // Prendo l'account dell'utente (per test, sempre il primo)
       const accounts = await web3.eth.getAccounts();
       console.log("accounts: " + accounts[0]);
         
@@ -151,33 +160,107 @@ export default function MoviesView() {
     return userDID;
   }
   
+  /*
+  To create a CLSignature2019 signature, you need to follow the steps described in the specification. The process includes:
+    Generate a private key for the issuer.
+    Generate a public key from the private key.
+    Generate a nonce value.
+    Compute the commitment value.
+    Compute the response value.
+    Compute the signature value.
+    Compute the signature correctness proof.
+
+  The signature correctness proof is a zero-knowledge proof that the signature is valid. The proof is generated using the issuer's private key, the nonce, the commitment, the response, and the signature.
+  */
+ 
+  
   async function retrieveVC(userDID: string | null) {
-      // recupero la VC dell'utente dal suo DID, ad esempio da un server di identità
-      
+      console.log('Retrieving Verifiable Credential...');
+
+      // Simulate a delay of 2 seconds
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const web3 = new Web3('http://localhost:8545');
+      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+      const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
+
+      const accounts = await web3.eth.getAccounts();
+      const issuerDid = await contract.methods.createDid().send({ from: accounts[1] });
+
+      // Generate a private key for the issuer
+      const privateKey = new BN('59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d', 16); //taken from test accounts
+      const ec = new EC('secp256k1');
+      const keyPair = ec.keyFromPrivate(privateKey);
+      console.log('keyPair: ' + keyPair)
+
+      // Generate a public key from the private key
+      const publicKey = keyPair.getPublic();
+      console.log('publicKey: ' + publicKey)
+
+      // Generate a random nonce
+      const nonce = new BN('12345678901234567890123456789012', 16); //replace with a random value
+
+      // Compute the commitment value
+      const commitment = publicKey.mul(nonce);
+      console.log('commitment: ' + commitment)
+
+      // Compute the response value
+      const masterSecret = new BN('123456789', 10); //replace with the user's master secret attribute value
+      const response = keyPair.priv.add(commitment.mul(masterSecret));
+      console.log('response: ' + response)
+
+      let signature: Signature;
+
+      // Compute the signature value
+      signature ={
+        r: response.mod(ec.curve.n),
+        s: nonce.sub(response.mul(privateKey)).mod(ec.curve.n),
+      };
+      console.log('signature: ' + signature)
+
+      // Compute the signature correctness proof
+      const signatureCorrectnessProof = publicKey.mul(signature.s).add(keyPair.getPublic().mul(signature.r));
+      console.log('signatureCorrectnessProof: ' + signatureCorrectnessProof)
+
+      // Encode the signature values as base64url strings
+      const proof = {
+        signatureValue: {
+          r: signature.r.toString(16),
+          s: signature.s.toString(16),
+        },
+        signatureCorrectnessProof: signatureCorrectnessProof.encode('hex'),
+      };
+      console.log('proof: ' + proof)
+
       const vc: VCDIVerifiableCredential = {
         '@context': ['https://www.w3.org/2018/credentials/v1'],
-        id: 'http://localhost:3000/credentials/1',
-        type: ['VerifiableCredential', 'AgeCredential'],
-          credentialSchema: {
+        id: 'http://localhost:3000/ageCredentialSchema',
+        type: ['VerifiableCredential'],
+        // according to the only source found: https://blog.goodaudience.com/cl-signatures-for-anonymous-credentials-93980f720d99
+        // this implements a base for ZKP for anonymous credentials (CL signature) for second layer solutions;
+        // according to https://arxiv.org/pdf/2208.04692.pdf this signature type it is standardized (page 23-30, the table)
+        // and classified for JSON CL Signatures, used for example in Sovrin or Hyperledger Indy.
+        // This allows credential binding with persistent identifier, and that's exactly what I have to use here
+        credentialSchema: { 
             id: userDID ? userDID : "",
-            type: userDID + "#ageCredentialSchema",
-          },        
+            type: "VerifiableCredential"
+        },        
         issuer: {
-          id: 'did:example:456', //TODO - sostituire con il DID del server di identità
+          id: issuerDid,
         } as IssuerObject,
         issuanceDate: new Date().toISOString(),
         credentialSubject: {
-        id: userDID,
-        age: 25,
-        type: 'VerifiableCredential',
+          id: userDID,
+          age: 25,
+          type: 'VerifiableCredential',
+          masterSecret: masterSecret, // The master secret is a secret key (or value here) that is used to create a user's private keys for each credential they receive.
         } as LinkedDataObject,
         proof: {
-          type: "CLSignature2019",
-          issuerData: "did:example:456",
-          attributes: "age",
-          // we can put sign and getProof from web3 here
-          signature: "", //TODO - aggiungere la firma
-          signatureCorrectnessProof: "", //TODO - aggiungere la correttezza sulla firma
+          type: "CLSignature2019", // used for anonymous credentials and ZKP for second layer solutions
+          issuerData: issuerDid,
+          attributes: masterSecret, // ths field is made of attributes not defined inside the schema - i.e. the master secret attribute
+          signature: signature, // the signature is generated with the user's private key
+          signatureCorrectnessProof: proof, //generate before a proof of correctness then sign it with the issuer's private key
         },
       };
       return vc;
@@ -194,7 +277,7 @@ export default function MoviesView() {
           ],
           type: ["VerifiableCredential"],
           credentialSchema: {
-            id: "did:example:cdf:35LB7w9ueWbagPL94T9bMLtyXDj9pX5o",
+            id: holder, // the user presenting the VP is the holder of the VC
             type: "did:example:schema:22KpkXgecryx9k7N6XN1QoN3gXwBkSU8SfyyYQG"
           },
           issuer: "did:example:Wz4eUg7SetGfaUVCn8U9d62oDYrUJLuUtcy619",
@@ -204,7 +287,7 @@ export default function MoviesView() {
           },
           proof: {
             type: "AnonCredDerivedCredentialv1",
-            //TODO - capire come generarsi le proof
+            //TODO - capire come generarsi le proof (DIY FFS)
             primaryProof: "cg7wLNSi48K5qNyAVMwdYqVHSMv1Ur8i...Fg2ZvWF6zGvcSAsym2sgSk737",
             nonRevocationProof: "mu6fg24MfJPU1HvSXsf3ybzKARib4WxG...RSce53M6UwQCxYshCuS3d2h"
           }
@@ -224,75 +307,13 @@ export default function MoviesView() {
           "proofValue": "DgYdYMUYHURJLD7xdnWRinqWCEY5u5fK...j915Lt3hMzLHoPiPQ9sSVfRrs1D"
         }
       };
-
-      // Sign the `presentation` object and set the `proofValue`
-      const proofValue = await signPresentation(vp);
-      console.log('proofValue', proofValue);
-      vp.proof.proofValue = proofValue;
       
       // Return the signed `presentation` object
       return vp;
     }
-
-    // Function to sign the presentation object
-    async function signPresentation(presentation: any): Promise<string> {
-      
-      // Create an array of `credentialProofs` objects with each VC's proof value
-      const credentialProofs = presentation.verifiableCredential.map((vc: { proof: { primaryProof: any; nonRevocationProof: any; }; }) => {
-        return {
-          primaryProof: vc.proof.primaryProof,
-          nonRevocationProof: vc.proof.nonRevocationProof
-        }
-      })
-     
-      // Sign the `credentailProofs` object
-      const credentialProofsSignature = await signCredentialProofs(credentialProofs)
-      
-      // Create the `presentationProof` object
-      const presentationProof = {
-        type: 'AnonCredPresentationProofv1',
-        credentialProofs: credentialProofs,
-        proofValue: credentialProofsSignature
-      }
-      
-      // Sign the `presentationProof` object
-      const proofValue = await signData(presentationProof)
-      console.log('proofValue', proofValue);
-      
-      // Return the proof value
-      return proofValue
-    }
-    
-    // Function to sign credential proofs
-    async function signCredentialProofs(credentialProofs: any): Promise<string> {
-      // Replace this with your own implementation of signing credential proofs
-      // For example, if you are using a CL signature scheme, you can use the `signCredentialProofs` function from the `cl-signatures` library
-      const signatureValue = await signCredentialProofs(credentialProofs)
-      return signatureValue
-    }
-    
-    // Function to sign data with a private key
-    async function signData(data: any): Promise<string> {
-      // Replace this with your own implementation of signing data with a private key
-      // For example, if you are using an EdDSA signature scheme, you can use the `signData` function from the `ed25519-signatures` library
-      const privateKey = await getPrivateKey()
-      const signatureValue = await signData(privateKey)
-      return signatureValue
-    }
-    
-    // Function to get the private key
-    async function getPrivateKey(): Promise<any> {
-      // Replace this with your own implementation of getting the private key
-      const privateKey = "";
-      return privateKey
-    }
     
     async function verifyVP(vp: VerifiablePresentation): Promise<boolean> {
       // TODO - We have to properly write it; for now, just to pass type checks
-
-      if (vp.holder === null) {
-        return false;
-      }
       return true;
     }
 

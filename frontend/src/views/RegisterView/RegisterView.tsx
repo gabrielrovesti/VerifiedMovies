@@ -10,7 +10,7 @@ export default function RegisterView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
-  const [did, setDid] = useState(localStorage.getItem('userDID') || '');
+  const [did, setDid] = useState('');
   const [age, setAge] = useState(0);
   const [randomNumber, setRandomNumber] = useState(0);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
@@ -59,9 +59,8 @@ const handleVerificationSubmit = async () => {
   const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
   console.log("signature: " + signature);
 
-  // Create a new DID in case the user doesn't have one
-  const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
-  console.log("userDid: " + userDid);
+  // Sending the DID from account X to the contract
+  const userDid = await contract.methods.createDid().send({ from: accounts[0] }); 
 
   // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
   // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
@@ -70,17 +69,17 @@ const handleVerificationSubmit = async () => {
     "type": "DataIntegrityProof",
     "created": new Date().toISOString(),
     "proofPurpose": "authentication",
-    "verificationMethod": localStorage.getItem('userDID') === '' ? localStorage.getItem('userDID') : userDid,
+    "verificationMethod": userDid,
     "value": randomNumber.toString(),
     "signatureValue": signature,
   };
 
   // Recupero il didUrl da verificationMethod e lo uso per verificare la firma associata all'account X
   const didUrl = proof.verificationMethod;
-  console.log("didUrl: " + didUrl);
+  console.log("didUrl: " + JSON.stringify(didUrl));
 
   //Chiamo lo smart contract per verifica
-  const verification = await contract.methods.getAuthentication(didUrl).call();
+  const verification = await contract.methods.getAuthentication("did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266#key-1").call();
   console.log("verification: " + JSON.stringify(verification));  
 
   // Controllo con recover di Web3 se corrispondono il numero di prima, come signature il proof (non prefissato di suo)
@@ -90,8 +89,8 @@ const handleVerificationSubmit = async () => {
   console.log("recovered: " + recovered);
 
   // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
-
-  if (recovered === accounts[0]) {
+  
+  if (recovered === verification[5]) {
   const userData = { username,email,password,dateOfBirth,did,age};
       localStorage.setItem('userData', JSON.stringify(userData));
       setShowVerificationModal(false);

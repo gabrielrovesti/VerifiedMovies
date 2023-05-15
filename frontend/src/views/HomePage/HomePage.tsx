@@ -1,15 +1,16 @@
 import { useEffect } from "react";
 import "./HomePage.css";
 import CreateDID from "../../utils/CreateDID";
+import CreateIssuers from "../../utils/CreateIssuers";
 
 export default function HomePage() {
   useEffect(() => {
     async function createAndStoreDID() {
       const userDID = await CreateDID();
       console.log(userDID);
-      localStorage.setItem('userDID', userDID);
     }
     createAndStoreDID();
+    CreateIssuers();
   }, []);
 
   return (
