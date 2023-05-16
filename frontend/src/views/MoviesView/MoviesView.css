@@ -17,6 +17,7 @@
     overflow: hidden;
     box-shadow: 0 0 10px rgba(0, 0, 0.2);
     transition: transform 0.3s ease-in-out;
+    font-size: 1.5em;
 }
   
 .movie-card:hover {
@@ -78,6 +79,12 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     text-align: center;
 }
+
+.verification-modal p{
+    font-size: 1em;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
   
 .verification-modal h2 {
     margin-top: 0;
@@ -88,7 +95,9 @@
 }
   
 .verification-modal button {
-    padding: 10px 20px;
+    padding: 1em 1em;
+    margin: 1em;
+    font-size: 1em;
     background-color: #007bff;
     color: white;
     border: none;
@@ -100,3 +109,23 @@
 .verification-modal button:hover {
     background-color: #0062cc;
 }
+
+.spinner {
+    margin: 20px auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #0099ff;
+    animation: spinner 1s ease-in-out infinite;
+  }
+  
+  @keyframes spinner {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+}
+  

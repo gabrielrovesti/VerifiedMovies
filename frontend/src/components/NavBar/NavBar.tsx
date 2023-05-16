@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import "./NavBar.css";
 import { useAuth } from "../../context/AuthContext";
+import logo from "../logo192.png"; 
 
 export default function NavBar() {
   const { isAuthenticated, logout } = useAuth();
@@ -12,8 +13,10 @@ export default function NavBar() {
   return (
     <nav className="navbar-container">
       <div className="navbar-logo">
-        <h1>VerifiedMovies</h1>
-      </div>
+          <Link to="/">
+            <img src={logo} alt="VerifiedMovies" className="logo-image" />
+          </Link>      
+        </div>
       <div>
         <ul className="navbar-menu">
           {!isAuthenticated && (

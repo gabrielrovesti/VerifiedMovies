@@ -2,7 +2,6 @@ import SelfSovereignIdentity from "../contracts/SelfSovereignIdentity.json";
 import Web3 from "web3";
 import { AbiItem } from 'web3-utils';
 
-
 export default async function CreateIssuers(){
     // Connessione a Web3 e al contratto
     const web3 = new Web3('http://localhost:8545');
@@ -12,7 +11,7 @@ export default async function CreateIssuers(){
     //Creazione degli Issuer di cui si fida l'utente
     const accounts = await web3.eth.getAccounts();
     const issuer1 = await contract.methods.createDid().send({ from: accounts[1] });
-    console.log("Issuer 1 Created", issuer1);
+    console.log("Issuer who the user trusts Created", issuer1);
 
     const message = "Trusted Issuers Creation";
 

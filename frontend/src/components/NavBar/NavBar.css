@@ -1,14 +1,13 @@
 .navbar-container {
     background-color: #141414;
-    padding: 20px;
+    padding: 0.5em 1em;
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
+}
   
 .navbar-logo h1 {
     color: #ffffff;
-    font-size: 24px;
     font-weight: bold;
     margin: 0;
 }
@@ -21,12 +20,12 @@
 }
   
 .navbar-menu-item {
-    margin-left: 20px;
+    margin-left: 1em;
 }
   
 .navbar-menu-item a {
+    font-size: 20px;
     color: #ffffff;
-    font-size: 16px;
     text-decoration: none;
     transition: all 0.3s ease-in-out;
 }
