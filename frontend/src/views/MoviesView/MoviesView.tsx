@@ -25,6 +25,14 @@ interface Signature {
   s: typeof BN;
 }
 
+type Proof = {
+  signatureValue: {
+    r: string;
+    s: string;
+  };
+  signatureCorrectnessProof: string;
+};
+
 // Interface for movie frontend data
 interface Movie {
   id: string;
@@ -128,10 +136,13 @@ export default function MoviesView() {
       // recupero la VC dell'utente
       const vc = await retrieveVC(userDID);
       
-      // creo la VP con l'età e il DID dell'utente, che è l'holder della VC
-      const vp = await createVP(vc, userDID);
+      // Extract the signature and proof from the vc object
+      const { signature, proof } = vc.proof;
 
-      // verifico la VP con il servizio di verifica
+      // Create the VP with the extracted signature and proof
+      const vp = await createVP(vc, userDID, signature, proof.signatureCorrectnessProof);
+
+      // verifico la VP con la funzione apposita 
       const isVerified = await verifyVP(vp);
 
       // mostro il risultato all'utente
@@ -159,13 +170,14 @@ export default function MoviesView() {
   }
   
   async function getUserDID() {
-    // recupero il DID dell'utente, per semplicità salvato in locale al momento del login
+    // recupero il DID dell'utente, per semplicità salvato in locale al momento del login; in un caso reale sarebbe recuperato da un'API
+    // TODO - sostituire con un'API
     const userDID = localStorage.getItem('loggedDID');
     return userDID;
   }
   
   /*
-  To create a CLSignature2019 signature, you need to follow the steps described in the specification. The process includes:
+  To create a CLSignature2019 signature, the specification lists these steps. The process includes:
   - Generate a private key for the issuer.
   - Generate a public key from the private key.
   - Generate a nonce value.
@@ -188,7 +200,7 @@ export default function MoviesView() {
       const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
 
       const accounts = await web3.eth.getAccounts();
-      const issuerDid = await contract.methods.createDid().send({ from: accounts[1] });
+      const issuerDid = await contract.methods.createDid().send({ from: accounts[4] }); //here we do use one of the issuers account resolving then the chain below
 
       // Generate a private key for the issuer
       const privateKey = new BN(1373628729, 16); 
@@ -219,7 +231,7 @@ export default function MoviesView() {
       let signature: Signature;
 
       // Compute the signature value
-      signature ={
+      signature = {
         r: response.mod(ec.curve.n),
         s: nonce.sub(response.mul(privateKey)).mod(ec.curve.n),
       };
@@ -228,21 +240,38 @@ export default function MoviesView() {
       const signatureCorrectnessProof = publicKey.mul(signature.s).add(keyPair.getPublic().mul(signature.r));
 
       // Encode the signature values as base64url strings
-      const proof = {
+      const proof: Proof = {
         signatureValue: {
           r: signature.r.toString(16),
           s: signature.s.toString(16),
         },
         signatureCorrectnessProof: signatureCorrectnessProof.encode('hex'),
       };
+      console.log('proof', JSON.stringify(proof));
 
       // VC following CL Signatures Example from W3C: https://www.w3.org/TR/vc-data-model/#example-a-verifiable-credential-that-supports-cl-signatures
+      
+      // This follows this logical flow: https://hyperledger.github.io/anoncreds-spec/#anoncreds-setup-data-flow
+      // 1. Issuer creates a credential schema
+      // 2. Issuer creates a credential definition
+      // 3. Issuer creates a credential offer
+      // 4. Issuer creates a credential request
+      // 5. Issuer issues a credential
+      // 6. Holder stores a credential
+      // 7. Holder creates a proof request
+      // 8. Holder creates a proof
+      // 9. Verifier verifies a proof
+
+      // Everything is then saved in a Verifiable Data Registry (which is a blockchain in this case); 
+      // the holder is the user, the issuer is the service provider, the verifier is the cinema websitie calling the smart contract which verifies the trustchain
+      // inside the VP verification code.
+
       const vc: VCDIVerifiableCredential = {
         '@context': ['https://www.w3.org/2018/credentials/v1'],
         id: 'http://localhost:3000/ageCredentialSchema',
         type: ['VerifiableCredential'],
 
-        // according to the only source found: https://blog.goodaudience.com/cl-signatures-for-anonymous-credentials-93980f720d99
+        // According to the only source found on the subject: https://blog.goodaudience.com/cl-signatures-for-anonymous-credentials-93980f720d99
         // this implements a base for ZKP for anonymous credentials (CL signature) for second layer solutions;
         // according to https://arxiv.org/pdf/2208.04692.pdf this signature type is standardized (page 23/30, the table)
         // and classified for JSON CL Signatures, used for example in Sovrin or Hyperledger Indy.
@@ -261,20 +290,37 @@ export default function MoviesView() {
           id: userDID,
           age: 25,
           type: 'VerifiableCredential',
-          masterSecret: masterSecret, // The master secret is a secret key (or value here) that is used to create a user's private keys for each credential they receive.
         } as LinkedDataObject,
         proof: {
           type: "CLSignature2019", // used for anonymous credentials and ZKP for second layer solutions
           issuerData: issuerDid, // the issuer's DID
           attributes: masterSecret, // ths field is made of attributes not defined inside the schema - i.e. the master secret attribute
           signature: signature, // the signature is generated with the user's private key
-          signatureCorrectnessProof: proof, //generate before a proof of correctness then sign it with the issuer's private key
+          signatureCorrectnessProof: proof, //generate before a proof of correctness then sign it with the issuer's private key (inside AnonCred example this is the primaryProof)
         },
       };
       return vc;
     }
+
+    /* 
+    Inside the AnonCred scheme we have this:
+    
+      - primaryProof: This proof is usually generated by the issuer of the credential, 
+      using the holder's attributes and the issuer's secret key. 
+      It demonstrates that the attributes in the credential have been signed correctly
+      and can be verified by the verifier. The specific computation of the primaryProof 
+      depends on the AnonCred scheme you are using.
+
+      - nonRevocationProof: This proof is used to demonstrate that the credential has not been revoked 
+      and is still valid at the time of presentation. It ensures that the credential has not been added 
+      to a revocation list since it was issued. Again, the computation of the nonRevocationProof depends 
+      on the AnonCred scheme and the revocation mechanism being used.
+
+    Ergo, the primary proof is the signature of the issuer, while the nonRevocationProof is the proof of correctness.
+    We won't need to use them since they are two different things (AnonCred from CL Signatures) and we already have all of this data.
+    */
   
-    async function createVP(vc: VerifiableCredential, holder: string): Promise<VerifiablePresentation> {
+    async function createVP(vc: VerifiableCredential, holder: string, signature: Signature, proof: Proof): Promise<VerifiablePresentation> {
     
       // Create the Verifiable Presentation object with the nested previous VC (ideally, the should be many VCS, but here it's not necessary)
       // in any case, you can easily pass an array and iterate over it to create the VP with many VCs
@@ -288,56 +334,64 @@ export default function MoviesView() {
         type: "VerifiablePresentation",
         verifiableCredential: [vc],
         proof: {
-          "type": "AnonCredPresentationProofv1",
-          "proofValue": "DgYdYMUYHURJLD7xdnWRinqWCEY5u5fK...j915Lt3hMzLHoPiPQ9sSVfRrs1D"
+          type: "CLSignature2019",
+          proofValue: {
+            signatureValue: {
+              r: signature.r.toString(16),
+              s: signature.s.toString(16),
+            },
+            signatureCorrectnessProof: proof.signatureCorrectnessProof,
+          },
         }
       };
       
-      // Return the signed `presentation` object
       return vp;
     }
     
     async function verifyVP(vp: VerifiablePresentation): Promise<boolean> {
-      // TODO - We have to properly write it; for now, just to pass type checks
+      // TODO - Implement the verification logic here
+      // Extract the necessary information from the VP, such as the verifiable credentials and the proof
+      // Perform the necessary checks and verifications based on your specific requirements and the CLSignature2019 algorithm
+      // Return true if the VP is verified successfully, or false otherwise
       return true;
     }
 
-  const renderMovies = () => {
-    return movies.map((movie) => {
-      return (
-        <div key={movie.id} className="movie-card" onClick={() => openVerificationModal(movie)}>
-          <img className="movie-image" src={movie.imageUrl} alt={movie.title} />
-          <div className="movie-info">
-            <h3>{movie.title}</h3>
-            <p>Anno: {movie.year}</p>
-            <p>Valutazione: {movie.rating}</p>
-            <p>Categorie: {movie.categories.join(', ')}</p>
-            <span className={`age-rating age-rating-${movie.ageRating.toLowerCase()}`}>{movie.ageRating}</span>
+    const renderMovies = () => {
+      return movies.map((movie) => {
+        return (
+          <div key={movie.id} className="movie-card" onClick={() => openVerificationModal(movie)}>
+            <img className="movie-image" src={movie.imageUrl} alt={movie.title} />
+            <div className="movie-info">
+              <h3>{movie.title}</h3>
+              <p>Anno: {movie.year}</p>
+              <p>Valutazione: {movie.rating}</p>
+              <p>Categorie: {movie.categories.join(', ')}</p>
+              <span className={`age-rating age-rating-${movie.ageRating.toLowerCase()}`}>{movie.ageRating}</span>
+            </div>
           </div>
-        </div>
-      );
-    });
-  };
+        );
+      });
+    };
 
   //TODO - aggiungere migliori opzioni di visualizzazione per le varie fasi di verifica
-  return (
-    <div className="movies-container">
-        <h1>Film in evidenza</h1>
-      <div className="movies-grid">
-        {renderMovies()}
-      </div>
-      {showVerificationModal && selectedMovie && (
-        <div className="modal-overlay">
-            <div className="verification-modal">
-            <h2>Verifica la tua età</h2>
-            <p>{verificationStatus}</p>
-            {showLoading && <div className="spinner" />}
-            {!isVerified && <p>Questo film è valutato {selectedMovie.ageRating}. Per favore, dimostra la tua età per accedere a questo contenuto.</p>}
-            <button onClick={handleVerificationSubmit}>Procedi</button>
-            <button onClick={closeVerificationModal}>Chiudi</button>
-            </div>
+    return (
+      <div className="movies-container">
+          <h1>Film in evidenza</h1>
+        <div className="movies-grid">
+          {renderMovies()}
         </div>
-    )}
-    </div>
-  );
+        {showVerificationModal && selectedMovie && (
+          <div className="modal-overlay">
+              <div className="verification-modal">
+              <h2>Verifica la tua età</h2>
+              <p>{verificationStatus}</p>
+              {showLoading && <div className="spinner" />}
+              {!isVerified && <p>Questo film è valutato {selectedMovie.ageRating}. Per favore, dimostra la tua età per accedere a questo contenuto.</p>}
+              <button onClick={handleVerificationSubmit}>Procedi</button>
+              <button onClick={closeVerificationModal}>Chiudi</button>
+              </div>
+          </div>
+      )}
+      </div>
+    );
 }

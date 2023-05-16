@@ -11,7 +11,7 @@ export default async function CreateIssuers(){
     //Creazione degli Issuer di cui si fida l'utente
     const accounts = await web3.eth.getAccounts();
     const issuer1 = await contract.methods.createDid().send({ from: accounts[1] });
-    console.log("Issuer who the user trusts Created", issuer1);
+    console.log("Boss Issuer", issuer1);
 
     const message = "Trusted Issuers Creation";
 
