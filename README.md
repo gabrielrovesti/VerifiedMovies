@@ -10,8 +10,9 @@ Project for Sync Lab Stage Implementation made with:
 
 - The project follows the starter template from: <https://github.com/XamHans/React-Solidity-Typescript-Starter>
 (one thing to note; Ethers gives A LOT of problems with TypeScript, so I had to use ONLY web3.js instead)
-- It has to utilize the Self Sovereign Identity code by Alessio de Biasi, COmput Science Master Student at Univerisity of Ca' Foscari, Venice (SelfSovereignIdentity.sol) as a library in its implementation; the code is in the 'smart-contracts' folder.
+- It has to utilize the Self Sovereign Identity code by Alessio de Biasi, Computer Science Master Student at University of Ca' Foscari, Venice (SelfSovereignIdentity.sol) as a library in its implementation; the code is in the 'smart-contracts' folder.
 He guided me through the whole process of understanding the logical flow of everything and I'm grateful because I just had to ask him; still, it's all myself here.
+- Here "npm" was used everywhere; if you want to use "yarn" instead, you can, but you have to change the commands accordingly (don't mix the two, it will give you errors of any kind: I know).
 
 ## Features
 
@@ -36,6 +37,8 @@ pre: cd into /smart-contracts and install dependencies with 'npm install'
 
 ##### Practical commands
 
+Here will be listed the handmade scripts that I made to make the process easier.
+
 First terminal (activates local testnet and gives test accounts) --> remember to keep this one open
 > npm run testnet
 
@@ -51,7 +54,9 @@ Second terminal:
 
 > npm run deploy
 
-- Copy the 'SelfSovereignIdentity.json' that generated from the folder 'artifacts/contracts/elfSovereignIdentity.sol' folder into the 'frontend/src/contracts' folder in order to retrieve the correct ABI and not run out of gas.
+- Copy only the 'SelfSovereignIdentity.json' that generated from the folder 'artifacts/contracts/SelfSovereignIdentity.sol' folder into the 'frontend/src/contracts' folder in order to retrieve the correct ABI and not run out of gas.
+If you don't make major changes to the contract, you can just copy the one I already put there, cause the addresses (luckily for me),
+are always the same.
 
 ### Frontend
 
