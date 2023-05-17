@@ -9,13 +9,13 @@ Project for Sync Lab Stage Implementation made with:
 ## General Info
 
 - The project follows the starter template from: <https://github.com/XamHans/React-Solidity-Typescript-Starter>
-(one thing to note; Ethers gives A LOT of problems with Typescript, so I had to use web3.js instead)
+(one thing to note; Ethers gives A LOT of problems with TypeScript, so I had to use ONLY web3.js instead)
 - It has to utilize the Self Sovereign Identity code by Alessio de Biasi, COmput Science Master Student at Univerisity of Ca' Foscari, Venice (SelfSovereignIdentity.sol) as a library in its implementation; the code is in the 'smart-contracts' folder.
 He guided me through the whole process of understanding the logical flow of everything and I'm grateful because I just had to ask him; still, it's all myself here.
 
 ## Features
 
-- It utilizes a self made implementation of two W3C Standards: Decentralized Identifiers (DID) and Verifiable Credentials (VC)
+- It utilizes a self made implementation of two W3C Standards: Decentralized Identifiers (DID) and Verifiable Credentials (VC), with Zero Knowledge Proof (ZKP) capabilities
 - The verifiable credential follow the CL Signature scheme with a custom implementation (not yet fully standardized) for Zero Knowledge Proof sakes
 - It also has a challenge-response mechanism based on DIDs used in login/registration; we're not using MetaMask to not depend on external clients
 - The project is a prototype for a movie platform that allows users to watch movies only if they have a valid VC that proves they are over X years old, according to each age rating of the single movie
@@ -36,18 +36,22 @@ pre: cd into /smart-contracts and install dependencies with 'npm install'
 
 ##### Practical commands
 
-First terminal:
-> npx hardhat node
-or
+First terminal (activates local testnet and gives test accounts) --> remember to keep this one open
 > npm run testnet
 
 - For the sake of simplicity, inside code are used always the same X test accounts from Hardhat, simulating different users each time
 
 Second terminal:
+
+- First we clean the 'artifacts' folder, then we compile the contract
+
 > npm run compile
+
+- After that, we deploy the contract on the local testnet
+
 > npm run deploy
 
-- Copy the 'SelfSovereignIdentity.sol' that generated from the deploy script into the 'frontend/src/contracts' folder
+- Copy the 'SelfSovereignIdentity.json' that generated from the folder 'artifacts/contracts/elfSovereignIdentity.sol' folder into the 'frontend/src/contracts' folder in order to retrieve the correct ABI and not run out of gas.
 
 ### Frontend
 

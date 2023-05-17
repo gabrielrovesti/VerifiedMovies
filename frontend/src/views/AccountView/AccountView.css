@@ -1,0 +1,69 @@
+.account-container {
+    width: 500px;
+    margin: 0 auto;
+    padding: 1.5em;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 2em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+  
+.account-container h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+  
+.form-group {
+    margin-bottom: 20px;
+}
+  
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="date"] {
+  display: block;
+  width: 100%;
+  padding: 0.5em;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 0.25em;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5em;
+}
+
+.button-container button {
+  padding: 0.75em 1em;
+  font-size: 1em;
+  border: none;
+  border-radius: 0.25em;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button-container button + button {
+  margin-left: 1em;
+}
+
+.button-container button:hover {
+  background-color: #0056b3;
+}
+
+  

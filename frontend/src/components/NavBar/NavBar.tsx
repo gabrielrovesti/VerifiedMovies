@@ -13,10 +13,10 @@ export default function NavBar() {
   return (
     <nav className="navbar-container">
       <div className="navbar-logo">
-          <Link to="/">
-            <img src={logo} alt="VerifiedMovies" className="logo-image" />
-          </Link>      
-        </div>
+        <Link to="/">
+          <img src={logo} alt="VerifiedMovies" className="logo-image" />
+        </Link>      
+      </div>
       <div>
         <ul className="navbar-menu">
           {!isAuthenticated && (
@@ -36,6 +36,9 @@ export default function NavBar() {
             <>
               <li className="navbar-menu-item">
                 <Link to="/movies">Film</Link>
+              </li>
+              <li className="navbar-menu-item">
+                <Link to="/account">Profilo</Link>
               </li>
               <li className="navbar-menu-item">
                 <Link to="/" onClick={handleLogoutClick}>Esci</Link>

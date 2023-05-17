@@ -13,15 +13,15 @@ export interface LinkedDataObject {
   // id and type are very common to all Linked Data objects
   id?: string
   type?: Type
-
   name?: string
   image?: string | ImageObject
+  [x: string]: any;
 }
 
 export interface IssuerObject extends LinkedDataObject {
   id: string
-  url?: string
-
+  url?: string,
+  publicKey?: string; // Add publicKey property as optional
   [x: string]: any
 }
 
@@ -85,8 +85,10 @@ export interface VCDIVerifiableCredential extends LinkedDataObject {
 
 // https://w3c.github.io/vc-data-model/#credential-subject
 export interface CredentialSubject extends LinkedDataObject {
-  // although a VC is required to have a `credentialSubject` property,
-  // the spec does not require any properties inside it.
+  // Custom defined for my use case
+  id: string
+  age: number
+  type: string
 }
 
 // https://w3c.github.io/vc-data-model/#status

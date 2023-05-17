@@ -73,6 +73,7 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
+    "@types/elliptic": "^6.4.14",
     "@types/jsonld": "^1.5.8",
     "@types/react-datepicker": "^4.11.2",
     "@types/react-dom": "^18.2.4",

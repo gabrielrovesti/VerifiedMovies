@@ -78,7 +78,7 @@ const handleVerificationSubmit = async () => {
   const didUrl = proof.verificationMethod;
   console.log("didUrl: " + JSON.stringify(didUrl));
 
-  //Chiamo lo smart contract per verifica
+  // Chiamo lo smart contract per verifica
   const verification = await contract.methods.getAuthentication("did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266#key-1").call();
   console.log("verification: " + JSON.stringify(verification));  
 
