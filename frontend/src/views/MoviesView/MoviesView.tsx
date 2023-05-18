@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './MoviesView.css';
+import SearchBox from '../../components/SearchBox/SearchBox';
 
 // Import images for movies
 import firstImage from './movies/first.png';
@@ -54,6 +55,11 @@ export default function MoviesView() {
   const [showLoading, setShowLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState('');
   const [isVerified, setIsVerified] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [reviewText, setReviewText] = useState('');
+  const [currentMovie, setCurrentMovie] = useState<Movie | null>(null);
 
   // Movies testing data
   const movies: Movie[] = [
@@ -113,6 +119,14 @@ export default function MoviesView() {
     },
   ];
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const filteredMovies = movies.filter(movie =>
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const openVerificationModal = (movie: Movie) => {
     setSelectedMovie(movie);
     setShowVerificationModal(true);
@@ -122,6 +136,45 @@ export default function MoviesView() {
     setShowVerificationModal(false);
     setSelectedMovie(null);
   };
+
+  // Function to handle opening the review modal
+  const openReviewModal = (movie: Movie) => {
+    setCurrentMovie(movie);
+    setReviewModalOpen(true);
+  };
+
+  // Function to handle closing the review modal
+  const closeReviewModal = () => {
+    setReviewModalOpen(false);
+    setReviewText('');
+  };
+
+  // Function to handle submitting the review
+  const submitReview = () => {
+    // Save the review data to localStorage or perform any other necessary actions
+    if(selectedMovie !== null){
+      console.log(`Review for ${selectedMovie.title}: ${reviewText}`);
+    }
+    closeReviewModal();
+  };
+
+  // Function to handle sharing the movie details
+  const shareMovieDetails = () => {
+    // Implement the logic to generate the permalink and share the details on social media platforms
+    if (selectedMovie !== null) {
+      const movieDetails = `Movie: ${selectedMovie.title}\nYear: ${selectedMovie.year}\nRating: ${selectedMovie.rating}\nCategories: ${selectedMovie.categories.join(', ')}\nAge Rating: ${selectedMovie.ageRating}`;
+      console.log(`Sharing movie details:\n${movieDetails}`);
+    }
+  };
+
+  const openShareModal = (movie: React.SetStateAction<Movie | null>) => {
+    setCurrentMovie(movie);
+    setShareModalOpen(true);
+  };
+  
+  const closeShareModal = () => {
+    setShareModalOpen(false);
+  };  
 
   async function handleVerificationSubmit() {
     try {
@@ -521,7 +574,7 @@ export default function MoviesView() {
     }
     
     const renderMovies = () => {
-      return movies.map((movie) => {
+      return filteredMovies.map((movie) => {
         return (
           <div key={movie.id} className="movie-card" onClick={() => openVerificationModal(movie)}>
             <img className="movie-image" src={movie.imageUrl} alt={movie.title} />
@@ -531,32 +584,85 @@ export default function MoviesView() {
               <p>Valutazione: {movie.rating}</p>
               <p>Categorie: {movie.categories.join(', ')}</p>
               <span className={`age-rating age-rating-${movie.ageRating.toLowerCase()}`}>{movie.ageRating}</span>
+              <div>
+                <button className="review-button" onClick={() => openReviewModal(movie)}>
+                  Scrivi recensione
+                </button>
+                <button className="share-button" onClick={() => openShareModal(movie)}>
+                  Condividi
+                </button>
+              </div>
             </div>
           </div>
         );
       });
     };
-
-    //TODO - aggiungere un meccanismo di landing page dopo che la verifica funziona correttamente, per mostrare il contenuto del film e prenotare il biglietto
-
+    
+    
     return (
       <div className="movies-container">
-          <h1>Film in evidenza</h1>
+        <h1>Film in evidenza</h1>
+        <SearchBox onSearch={handleSearch} />
         <div className="movies-grid">
           {renderMovies()}
         </div>
         {showVerificationModal && selectedMovie && (
           <div className="modal-overlay">
-              <div className="verification-modal">
+            <div className="verification-modal">
               <h2>Verifica la tua età</h2>
               <p>{verificationStatus}</p>
               {showLoading && <div className="spinner" />}
               {!isVerified && <p>Questo film è valutato {selectedMovie.ageRating}. Per favore, dimostra la tua età per accedere a questo contenuto.</p>}
               <button onClick={handleVerificationSubmit}>Procedi</button>
               <button onClick={closeVerificationModal}>Chiudi</button>
-              </div>
+            </div>
           </div>
-      )}
+        )}
+    
+        {/* Review Modal */}
+        {reviewModalOpen && (
+          <div className="modal-overlay">
+            <div className="verification-modal">
+              <h2>Scrivi una recensione</h2>
+              <textarea
+                className="review-textarea"
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                placeholder="Inserisci la tua recensione..."
+              ></textarea>
+              <div>
+                <button className="submit-review-button" onClick={submitReview}>
+                  Invia
+                </button>
+                <button className="cancel-review-button" onClick={closeReviewModal}>
+                  Annulla
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+    
+        {/* Share Movie Modal */}
+        {shareModalOpen && currentMovie && (
+          <div className="modal-overlay">
+            <div className="verification-modal">
+              <h2>Condividi i dettagli del film</h2>
+              <p>{`Movie: ${currentMovie.title}`}</p>
+              <p>{`Year: ${currentMovie.year}`}</p>
+              <p>{`Rating: ${currentMovie.rating}`}</p>
+              <p>{`Categories: ${currentMovie.categories.join(', ')}`}</p>
+              <p>{`Age Rating: ${currentMovie.ageRating}`}</p>
+              <div>
+                <button className="share-button" onClick={shareMovieDetails}>
+                  Condividi
+                </button>
+                <button className="cancel-share-button" onClick={closeShareModal}>
+                  Annulla
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
 }

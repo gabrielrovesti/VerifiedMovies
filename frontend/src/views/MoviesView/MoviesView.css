@@ -192,4 +192,41 @@
       border-width: 3px;
     }
 }
-  
+
+/* New styles for buttons */
+
+.share-button,
+.cancel-share-button,
+.submit-review-button,
+.cancel-review-button,
+.review-button {
+  padding: 0.7em 1em;
+  margin: 0.7em;
+  font-size: 0.9em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.share-button:hover,
+.cancel-share-button:hover,
+.submit-review-button:hover,
+.cancel-review-button:hover,
+.review-button:hover {
+  background-color: #0062cc;
+}
+
+/* Additional styling for textarea */
+
+.review-textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: vertical;
+  font-size: 1em;
+}
