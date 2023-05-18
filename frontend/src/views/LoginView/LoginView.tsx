@@ -35,11 +35,9 @@ export default function LoginView() {
   
     // Prendo l'account dell'utente
     const accounts = await web3.eth.getAccounts();
-    console.log("accounts: " + accounts[0]);
     
     // Firmo il messaggio
     const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
-    console.log("signature: " + signature);
   
     // Crea un nuovo DID per l'utente nel caso non lo abbia già (se lo ha, lo recupera dal local storage, caso mio)
 
@@ -59,6 +57,7 @@ export default function LoginView() {
     };
   
     //Chiamo lo smart contract per verifica
+    
     const verification = await contract.methods.getAuthentication("did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266#key-1").call();
     console.log("verification: " + JSON.stringify(verification));  
   
@@ -66,7 +65,6 @@ export default function LoginView() {
     // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
   
     const recovered = await web3.eth.accounts.recover(randomNumber.toString(), proof.signatureValue);
-    console.log("recovered: " + recovered);
   
     // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
   

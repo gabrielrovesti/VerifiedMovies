@@ -100,7 +100,7 @@ export default function AccountView() {
           <button type="submit" className="btn btn-primary" onClick={handleEditProfile}>
             Aggiorna profilo
           </button>
-          <button type="button" className="btn btn-danger" onClick={handleDeleteAccount}>
+          <button type="button" className="btn btn-primary" onClick={handleDeleteAccount}>
             Cancella account
           </button>
         </div>

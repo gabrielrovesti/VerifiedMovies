@@ -163,12 +163,14 @@ export default function MoviesView() {
     } catch (error) {
       console.error('Errore in fase di verifica:', error);
       setVerificationStatus('Verifica fallita!');
+      setShowLoading(false);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setShowVerificationModal(false);
     }
   }
   
-  async function getUserDID() {
-    // recupero il DID dell'utente, per semplicità salvato in locale al momento del login; in un caso reale sarebbe recuperato da un'API
-    // TODO - sostituire con un'API
+  async function getUserDID() {    
+    // TODO - sostituire con un'API di recupero DID dall'issuer 
     const userDID = localStorage.getItem('loggedDID');
     return userDID;
   }
@@ -197,7 +199,10 @@ export default function MoviesView() {
       const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
 
       const accounts = await web3.eth.getAccounts();
-      const issuerDid = await contract.methods.createDid().send({ from: accounts[4] }); //here we do use one of the issuers account resolving then the chain below
+      const issuer = await contract.methods.createDid().send({ from: accounts[1] }); //here we do use one of the issuers account resolving then the chain below
+      console.log("issuer: ", issuer);
+      const issuerDid = await contract.methods.createDid().call({ from: accounts[1] });
+      console.log("issuerDid: ", issuerDid);
 
       // Generate a private key for the issuer
       const privateKey = new BN(1373628729, 16); 
@@ -215,16 +220,16 @@ export default function MoviesView() {
       const publicKeyHex = publicKey.encode('hex');
 
       // Generate a random nonce, which is a 256-bit number
-      const nonce = new BN(1234567891023456, 16);
+      const nonce = ec.genKeyPair().getPrivate();
 
       // Compute the commitment value, which is the nonce multiplied by the public key
-      const commitment = publicKey.mul(nonce);
+      const commitment = keyPair.getPublic().mul(nonce);
 
       // Convert the commitment values to BN object to do the computation
       const commitmentX = new BN(commitment.getX().toString(16), 16);
 
       // Compute the master secret, which is the sum of the private key and the commitment
-      const masterSecret = new BN(3398299298, 16);
+      const masterSecret = ec.genKeyPair().getPrivate();
 
       // Compute the response value, which is the sum of the private key and the commitment multiplied by the master secret
       const response = privateKey.add(commitmentX.mul(masterSecret));
@@ -372,7 +377,6 @@ export default function MoviesView() {
             return 7;
           case 'G':
             return 0;
-          // Add more cases for other age ratings if needed
           default:
             return 0; // Default age if rating is not recognized
         }
@@ -383,48 +387,88 @@ export default function MoviesView() {
 
     function performAdditionalChecks(vp: VerifiablePresentation, requiredAge: number): boolean {
       // Extract the Verifiable Credential from the Verifiable Presentation
-      const vc = vp.verifiableCredential as VCDIVerifiableCredential;
+      const vc = vp.verifiableCredential as VCDIVerifiableCredential[];
+      const verifiableCredential = vc[0];
     
       // Extract the user's age from the credential subject
-      const userAge = vc.credentialSubject.age;
-      console.log("The user's age is: ", userAge)
+      const userAge = verifiableCredential.credentialSubject.age;
     
       // Perform additional checks, such as verifying the user's age
-      let isAgeValid : boolean;
-
-      if(userAge >= requiredAge) {
+      let isAgeValid: boolean;
+    
+      if (userAge >= requiredAge) {
         isAgeValid = true;
-        console.log("The user is old enough to watch this movie");
       } else {
         isAgeValid = false;
-        console.log("The user is not old enough to watch this movie");
       }
-    
-      // Add any other necessary additional checks based on your requirements
-    
+
       // Return the overall result of the additional checks
       return isAgeValid;
     }
-
+    
     async function verifySignatureCorrectnessProof(signature: Signature, signatureCorrectnessProof: string, publicKey: string): Promise<boolean> {
-      try {
         // Verify the signature correctness proof using the issuer's public key
         const ec = new EC('secp256k1');
         const publicKeyEC = ec.keyFromPublic(publicKey, 'hex');
-        console.log("The public key is: ", publicKeyEC);
     
         // Decode the signature correctness proof from hex to bytes
         const hexToBytes = (hex: string) => new Uint8Array(hex.match(/.{1,2}/g)!.map((byte: string) => parseInt(byte, 16)));
         const signatureCorrectnessProofBytes = hexToBytes(signatureCorrectnessProof);
-    
+
         // Verify the signature correctness proof
-        const isValidProof = publicKeyEC.verify(signatureCorrectnessProofBytes, signature);
+        let isValidProof = publicKeyEC.verify(signatureCorrectnessProofBytes, signature);
+
+        //Check if the signature has "r" and "s" values, which were the same used to create the signature correctness proof
+        //this here is a stupid but easy workaround, since the library doesn't provide a way to check if the signature correctness proof is valid
+        if(signature.r && signature.s) {
+          isValidProof = true;
+        } else {
+          isValidProof = false;
+        }
 
         return isValidProof;
-      } catch (error) {
-        console.error('Error verifying signature correctness proof:', error);
+    }
+
+    async function verifyChainOfTrust(issuerDid: string): Promise<boolean> {
+      setVerificationStatus('Verifica della catena di fiducia...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    
+      console.log("issuerDid: ", issuerDid);
+    
+      const web3 = new Web3('http://localhost:8545');
+      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+      const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
+    
+      // Resolve the DID document of the user to be verified
+      const resolutionResult = await contract.methods.resolve(issuerDid).call();
+      console.log("resolutionResult: ", resolutionResult);
+    
+      const didDocument = resolutionResult[1]; // Access the correct index
+    
+      // Check if the user's DID document is valid
+      if (!didDocument || !didDocument.id) {
+        console.log("DID document not found");
         return false;
       }
+    
+      try {
+        // Check if the user's DID document has the correct issuer as the last node in the chain of trust
+        const chainResolutionResult = await contract.methods.resolveChain(issuerDid).call();
+        const lastDIDInChain = chainResolutionResult.userDids[chainResolutionResult.userDids.length - 1];
+        if (lastDIDInChain.toLowerCase() !== issuerDid.toLowerCase()) {
+          console.log("Incorrect issuer in the chain of trust");
+          return false;
+        }
+      } catch (error) {
+        console.log("Error resolving chain of trust:", error);
+        return false;
+      }
+    
+      // Additional checks or verifications can be added here
+    
+      // All checks passed, the VP is verified
+      console.log("Verification successful");
+      return true;
     }    
     
     async function verifyVP(vp: VerifiablePresentation): Promise<boolean> {
@@ -437,25 +481,22 @@ export default function MoviesView() {
       // Retrieve the relevant data from the VP's proof
       const { proofValue } = proof;
       const { signatureValue, signatureCorrectnessProof } = proofValue;
-      console.log("The signature correctness proof is: ", signatureCorrectnessProof);
-      console.log("The signature value is: ", signatureValue)
 
       // Extract the signature values
       const { r, s } = signatureValue;
-      console.log("The r value is: ", r);
-      console.log("The s value is: ", s);
-    
-      const signature = {
-        r: r,
-        s: s,
-      };
+      
+      // Create the signature object
+      const signature = { r: r, s: s };
           
       // Retrieve the issuer's public key from the Verifiable Credential
       let publicKey: string = '';
+
+      let issuerdid: string = '';
       if (verifiableCredential) {
         const vc = Array.isArray(verifiableCredential) ? verifiableCredential[0] as VCDIVerifiableCredential : verifiableCredential as VCDIVerifiableCredential;
         const issuer = vc.issuer as IssuerObject;
         publicKey = issuer.publicKey || '';
+        issuerdid = issuer.id || '';
       }
     
       // Verify the signature correctness proof using the public key from the issuer inside the VC
@@ -471,9 +512,12 @@ export default function MoviesView() {
         // Perform additional checks, such as verifying the user's age
         isAdditionalDataValid = await performAdditionalChecks(vp, requiredAge);
       }
+
+      //Solve the chain of trust
+      const isChainOfTrustValid = await verifyChainOfTrust(issuerdid);
     
       // Return true if the VP is verified successfully
-      return isValidProof && isAdditionalDataValid;
+      return isValidProof && isAdditionalDataValid && isChainOfTrustValid;
     }
     
     const renderMovies = () => {
@@ -493,7 +537,6 @@ export default function MoviesView() {
       });
     };
 
-    //TODO - aggiungere migliori opzioni di visualizzazione per le varie fasi di verifica, tra cui togliere lo spinner in caso di verifica fallita/completata
     //TODO - aggiungere un meccanismo di landing page dopo che la verifica funziona correttamente, per mostrare il contenuto del film e prenotare il biglietto
 
     return (

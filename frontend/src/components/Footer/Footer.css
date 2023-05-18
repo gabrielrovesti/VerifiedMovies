@@ -1,24 +1,28 @@
 .footer-container {
-    background-color: #141414;
-    color: #8c8c8c;
-    position: relative; /* Change position to relative */
-    width: 100%;
-    padding: 40px;
-    text-align: center;
-    box-sizing: border-box;
-  }
+  background-color: #141414;
+  color: #8c8c8c;
+  position: absolute;
+  bottom: 10;
+  left: 0;
+  width: 100%;
+  padding: 1em;
+  text-align: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0; /* Prevent the footer from shrinking */
+}
   
-  .footer-content {
+.footer-content {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
+}
   
-  p {
-    font-size: 14px;
-    margin-bottom: 5px;
-  }
+p {
+    font-size: 1rem;
+    margin-bottom: 0.5em;
+}
   

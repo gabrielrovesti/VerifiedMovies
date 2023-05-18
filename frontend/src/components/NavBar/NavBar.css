@@ -14,6 +14,12 @@
   
 .navbar-menu {
     display: flex;
+    align-items: center;
+    position: relative;
+}
+  
+.navbar-menu ul {
+    display: flex;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -32,4 +38,47 @@
   
 .navbar-menu-item a:hover {
     color: #ff0000;
+}
+  
+.mobile-menu-toggle {
+    display: none;
+    color: #ffffff;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+  
+@media (max-width: 768px) {
+  .navbar-menu {
+    display: none;
+  }
+
+  /*Have menu voices appear under the menu*/
+  .navbar-menu.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    margin-top: 12em;
+    left: 0;
+    width: 100%;
+    background-color: #141414;
+    padding: 1em;
+    box-sizing: border-box;
+    z-index: 1;
+  }
+
+  .navbar-menu.active ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+  }
+
+  .navbar-menu.active li {
+    margin: 0.5em 0;
+  }
+
+  .mobile-menu-toggle {
+    display: block;
+  }
 }
