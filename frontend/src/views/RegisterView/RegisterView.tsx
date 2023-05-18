@@ -7,7 +7,6 @@ import SelfSovereignIdentity from "../../contracts/SelfSovereignIdentity.json";
 export default function RegisterView() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [did, setDid] = useState('');
   const [age, setAge] = useState(0);
@@ -22,10 +21,6 @@ export default function RegisterView() {
 
   const handleEmailChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setEmail(event.target.value);
-  };
-
-  const handlePasswordChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
-    setPassword(event.target.value);
   };
 
   const handleDateOfBirthChange = (event: { target: { value: string | number | Date; }; }) => {
@@ -133,7 +128,7 @@ export default function RegisterView() {
     // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
     
     if (recovered === verification[5]) {
-    const userData = { username,email,password,dateOfBirth,did,age};
+    const userData = { username,email,dateOfBirth,did,age};
         localStorage.setItem('userData', JSON.stringify(userData));
         setShowVerificationModal(false);
         alert('Registrazione avvenuta con successo!');
@@ -150,7 +145,7 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
   event.preventDefault();
 
   // Validate required fields
-  if (!username || !email || !password || !dateOfBirth || !did) {
+  if (!username || !email || !dateOfBirth || !did) {
     alert("Please fill in all the required fields");
     return;
   }
@@ -166,7 +161,6 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
   setUsername("");
   setEmail("");
   setDateOfBirth("");
-  setPassword("");
   setDid("");
   setEmailError("");
   setDidError("");
@@ -212,18 +206,6 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
             id="dateOfBirth"
             value={dateOfBirth}
             onChange={handleDateOfBirthChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            value={password}
-            onChange={handlePasswordChange}
             required
           />
         </div>

@@ -15,7 +15,6 @@ export default function AccountView() {
 
   const [username, setUsername] = useState(userData.username || '');
   const [email, setEmail] = useState(userData.email || '');
-  const [password, setPassword] = useState(userData.password || '');
   const [dateOfBirth, setDateOfBirth] = useState(userData.dateOfBirth || '');
   
   const handleEditProfile = () => {
@@ -71,17 +70,6 @@ export default function AccountView() {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
