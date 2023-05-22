@@ -90,14 +90,15 @@ export default function RegisterView() {
 
     // Prendo l'account dell'utente
     const accounts = await web3.eth.getAccounts();
-    console.log("accounts: " + accounts[0]);
     
     // Firmo il messaggio
     const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
-    console.log("signature: " + signature);
 
-    // Sending the DID from account X to the contract
+    // Sending the DID from account X to the contract - creating it, calling it and then sending it
     const userDid = await contract.methods.createDid().send({ from: accounts[0] }); 
+
+    const did_correct = await contract.methods.createDid().call({ from: accounts[0] }); 
+    const didverifiable = did_correct + "#key-1";
 
     // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
     // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
@@ -112,18 +113,16 @@ export default function RegisterView() {
     };
 
     // Recupero il didUrl da verificationMethod e lo uso per verificare la firma associata all'account X
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const didUrl = proof.verificationMethod;
-    console.log("didUrl: " + JSON.stringify(didUrl));
 
     // Chiamo lo smart contract per verifica
-    const verification = await contract.methods.getAuthentication("did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266#key-1").call();
-    console.log("verification: " + JSON.stringify(verification));  
+    const verification = await contract.methods.getAuthentication(didverifiable).call();
 
     // Controllo con recover di Web3 se corrispondono il numero di prima, come signature il proof (non prefissato di suo)
     // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
 
     const recovered = await web3.eth.accounts.recover(randomNumber.toString(), proof.signatureValue);
-    console.log("recovered: " + recovered);
 
     // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
     
