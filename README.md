@@ -10,17 +10,23 @@ Project for Sync Lab Stage Implementation made with:
 
 - The project follows the starter template from: <https://github.com/XamHans/React-Solidity-Typescript-Starter>
 (one thing to note; Ethers gives A LOT of problems with TypeScript, so I had to use ONLY web3.js instead)
-- It has to utilize the Self Sovereign Identity code by Alessio de Biasi, Computer Science Master Student at University of Ca' Foscari, Venice (SelfSovereignIdentity.sol) as a library in its implementation; the code is in the 'smart-contracts' folder.
-He guided me through the whole process of understanding the logical flow of everything and I'm grateful because I just had to ask him; still, it's all myself here.
+- I was forced to implement the Self Sovereign Identity code by Alessio de Biasi, Computer Science Master Student at University of Ca' Foscari, Venice (SelfSovereignIdentity.sol) as a library in its implementation
+still, it's all DIY, cause he was not that helpful. He helped figure out some parts of the process,
+but it's that kind of person which seems nice but in reality, "just do it yourself, idiot".
 - Here "npm" was used everywhere; if you want to use "yarn" instead, you can, but you have to change the commands accordingly (don't mix the two, it will give you errors of any kind: I know).
 
 ## Features
 
 - It utilizes a self made implementation of two W3C Standards: Decentralized Identifiers (DID) and Verifiable Credentials (VC), with Zero Knowledge Proof (ZKP) capabilities
-- The verifiable credential follow the CL Signature scheme with a custom implementation (not yet fully standardized) for Zero Knowledge Proof sakes
-- It also has a challenge-response mechanism based on DIDs used in login/registration; we're not using MetaMask to not depend on external clients
-- The project is a prototype for a movie platform that allows users to watch movies only if they have a valid VC that proves they are over X years old, according to each age rating of the single movie
-- The whole frontend has UX written in Italian, but comments and references in code are in English, so you can refer to those
+- The verifiable credential follow the CL Signature scheme with a custom implementation (not yet fully standardized) for Zero Knowledge Proof sakes correclty and fully explained inside code; also, you can fin EC for the curve secp256k1
+used by Bitcoin as the underlying elliptic curve for the signature scheme
+- It also has a challenge-response mechanism based on DIDs used in login/registration; we're not using MetaMask to not depend on external clients (requirement from Alessio, then he changed his mind after a week of struggles, I kept it anyway)
+- The project is a prototype for a movie platform that allows users to book movies only if the user is X years old:
+he presents a Verifiable Credential (VC), wrapped into a Verifiable Presentation (VP) to the platform without sharing any personal data with CL Signature that assures Zero Knowledge Proof.
+- It then  verifies the whole process and if the credential was issued by a specific issuer, which is the last node
+of an ipothetic chain of trust, which is the only one that can issue the credential, and if the credential is still valid (not expired), then the user can book the movie.
+- The user can also share the movie, leave a rating, see the all ratings and handle its profile.
+- Because I had to make everything myself, forgive the code state, but for a Bachelor's Degree Thesis, it's more than enough.
 
 ## How to start and run the project
 
