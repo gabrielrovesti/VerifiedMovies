@@ -5,14 +5,16 @@ import movies from "../../data/TestingData";
 import Movie from "../../types/Movie";
 import { useNavigate } from 'react-router-dom';
 
-//Import VC and VP types
-import { VerifiablePresentation } from '../../types/index';
+// Import the necessary to be able to interact with the smart contract
 import SelfSovereignIdentity from "../../contracts/SelfSovereignIdentity.json";
 import Web3 from "web3";
 import { AbiItem } from 'web3-utils';
+
+// Import VC and VP types based on W3C specs
+import { VerifiablePresentation } from '../../types/index';
 import { IssuerObject, CredentialSubject, VCDIVerifiableCredential, VerifiableCredential } from '../../types/VerifiableCredential';
 
-//CL Signature Modules and Types
+// CL Signature Modules and Types
 const EC = require('elliptic').ec;
 const BN = require('bn.js');
 
@@ -41,6 +43,10 @@ export default function MoviesView() {
   const [reviewText, setReviewText] = useState('');
   const [currentMovie, setCurrentMovie] = useState<Movie | null>(null);
   const navigate = useNavigate();
+  const [movieDetailsCopied, setMovieDetailsCopied] = useState(false);
+  const [permalinkCopied, setPermalinkCopied] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -68,30 +74,60 @@ export default function MoviesView() {
   const closeReviewModal = () => {
     setReviewModalOpen(false);
     setReviewText('');
+    setReviewSubmitted(false);
+    if (showVerificationModal) {
+      setShowVerificationModal(false);
+      setSelectedMovie(null);
+    }
   };
 
   const submitReview = () => {
-    if(selectedMovie !== null){
-      console.log(`Review for ${selectedMovie.title}: ${reviewText}`);
+    if (selectedMovie !== null) {
+      // Save the review in local storage
+      localStorage.setItem(`review_${selectedMovie.id}`, reviewText);
+      setReviewSubmitted(true);
     }
-    closeReviewModal();
+    setReviewText('');
   };
 
   const shareMovieDetails = () => {
     if (selectedMovie !== null) {
-      const movieDetails = `Movie: ${selectedMovie.title}\nYear: ${selectedMovie.year}\nRating: ${selectedMovie.rating}\nCategories: ${selectedMovie.categories.join(', ')}\nAge Rating: ${selectedMovie.ageRating}`;
-      console.log(`Sharing movie details:\n${movieDetails}`);
+      const movieDetails = `Film: ${selectedMovie.title}`;
+  
+      navigator.clipboard.writeText(movieDetails)
+        .then(() => {
+          setMovieDetailsCopied(true);
+  
+          const permalink = `https://example.com/movie-details?${encodeURIComponent(movieDetails)}`;
+          navigator.clipboard.writeText(permalink)
+            .then(() => {
+              setPermalinkCopied(true);
+            })
+            .catch((error) => {
+              console.error('Failed to copy permalink to clipboard:', error);
+            });
+        })
+        .catch((error) => {
+          console.error('Failed to copy movie details to clipboard:', error);
+        });
     }
   };
-
-  const openShareModal = (movie: React.SetStateAction<Movie | null>) => {
+  
+  
+  const openShareModal = (movie: Movie) => {
     setCurrentMovie(movie);
     setShareModalOpen(true);
   };
   
   const closeShareModal = () => {
     setShareModalOpen(false);
-  };  
+    if (showVerificationModal) {
+      setShowVerificationModal(false);
+      setSelectedMovie(null);
+    }
+    setMovieDetailsCopied(false);
+    setPermalinkCopied(false);
+  };
 
   async function handleVerificationSubmit(movie: Movie) {
     try {
@@ -102,28 +138,28 @@ export default function MoviesView() {
       const userDID = await getUserDID();
 
       if (userDID !== null) {
-      const vc = await retrieveVC(userDID);
+        const vc = await retrieveVC(userDID);
 
-      const vp = await createVP(vc, vc.proof.signature, vc.proof.signatureCorrectnessProof);
+        const vp = await createVP(vc, vc.proof.signature, vc.proof.signatureCorrectnessProof);
 
-      // verifico la VP con la funzione apposita 
-      const isVerified = await verifyVP(vp);
+        const isVerified = await verifyVP(vp);
 
-      if (isVerified) {
-        setShowLoading(false);
-        setIsVerified(true);
-        setVerificationStatus('Verifica avvenuta correttamente');
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        navigate(`/movies/${movie.id}/book`); 
+        if (isVerified) {
+          setShowLoading(false);
+          setIsVerified(true);
+          setVerificationStatus('Verifica avvenuta correttamente');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          navigate(`/movies/${movie.id}/book`); 
 
-      } else {
-        setIsVerified(false);
-        setShowLoading(false);
-        setVerificationStatus('Verifica fallita: firma non valida');
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setShowVerificationModal(false);
-      }
-      } else {
+        } else {
+          setIsVerified(false);
+          setShowLoading(false);
+          setVerificationStatus('Verifica fallita: firma non valida');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          setShowVerificationModal(false);
+        }
+      } 
+      else {
         setShowLoading(false);
         setVerificationStatus('Verifica fallita: DID non esistente'); 
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -140,7 +176,6 @@ export default function MoviesView() {
   }
   
   async function getUserDID() {    
-    // TODO - sostituire con un'API di recupero DID dall'issuer 
     const userDID = localStorage.getItem('loggedDID');
     return userDID;
   }
@@ -478,9 +513,10 @@ export default function MoviesView() {
     }
     
     const renderMovies = () => {
+      
       return filteredMovies.map((movie: Movie | null) => {
         if (!movie) {
-          return null;
+          return <p>Nessun film trovato.</p>;
         }
     
         return (
@@ -514,14 +550,17 @@ export default function MoviesView() {
         <div className="movies-grid">
           {renderMovies()}
         </div>
-        {showVerificationModal && selectedMovie && (
+
+        {showVerificationModal && selectedMovie && !reviewModalOpen && !shareModalOpen && (
           <div className="modal-overlay">
             <div className="verification-modal">
               <h2>Verifica la tua età</h2>
               <p>{verificationStatus}</p>
               {showLoading && <div className="spinner" />}
               {!isVerified && <p>Questo film è valutato {selectedMovie.ageRating}. Per favore, dimostra la tua età per accedere al film e prenotarlo.</p>}
-              <button onClick={() => handleVerificationSubmit(selectedMovie)}>Procedi</button>
+              {!isVerified && (
+                <button onClick={() => handleVerificationSubmit(selectedMovie)}>Procedi</button>
+              )}
               <button onClick={closeVerificationModal}>Chiudi</button>
             </div>
           </div>
@@ -529,7 +568,7 @@ export default function MoviesView() {
     
         {reviewModalOpen && (
           <div className="modal-overlay">
-            <div className="verification-modal">
+            <div className="review-modal">
               <h2>Scrivi una recensione</h2>
               <textarea
                 className="review-textarea"
@@ -538,12 +577,23 @@ export default function MoviesView() {
                 placeholder="Inserisci la tua recensione..."
               ></textarea>
               <div>
-                <button className="submit-review-button" onClick={submitReview}>
-                  Invia
-                </button>
-                <button className="cancel-review-button" onClick={closeReviewModal}>
-                  Annulla
-                </button>
+                {reviewSubmitted ? (
+                  <>
+                  <p>Recensione lasciata con successo!</p>
+                  <button className="cancel-review-button" onClick={closeReviewModal}>
+                      Chiudi
+                  </button>
+                  </>
+                ) : (
+                  <>
+                    <button className="submit-review-button" onClick={submitReview}>
+                      Invia
+                    </button>
+                    <button className="cancel-review-button" onClick={closeReviewModal}>
+                      Annulla
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -559,12 +609,22 @@ export default function MoviesView() {
               <p>{`Categorie: ${currentMovie.categories.join(', ')}`}</p>
               <p>{`Età: ${currentMovie.ageRating}`}</p>
               <div>
-                <button className="share-button" onClick={shareMovieDetails}>
-                  Condividi
-                </button>
-                <button className="cancel-share-button" onClick={closeShareModal}>
-                  Annulla
-                </button>
+                {movieDetailsCopied && permalinkCopied? (
+                  <h4>Dettagli del film e link copiati negli appunti.</h4>
+                ) : (
+                  <button className="generate-link-button" onClick={shareMovieDetails}>
+                    Condividi
+                  </button>
+                )}
+                {permalinkCopied || movieDetailsCopied ? (
+                  <button className="copy-link-button" onClick={closeShareModal}>
+                    Chiudi
+                  </button>
+                ) : (
+                  <button className="cancel-share-button" onClick={closeShareModal}>
+                    Annulla
+                  </button>
+                )}
               </div>
             </div>
           </div>

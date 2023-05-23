@@ -85,6 +85,7 @@
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     text-align: center;
+    overflow: hidden;
 }
 
 .verification-modal p{
@@ -112,8 +113,49 @@
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
 }
+
+.review-modal {
+  background-color: white;
+  color: black;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  overflow: hidden;
+  /*Align items center*/
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.review-modal p{
+  font-size: 1em;
+  margin-bottom: 0.5em;
+  text-align: center;
+}
+
+.review-modal h2 {
+  margin-top: 0;
+}
+
+.review-modal p {
+  margin-bottom: 20px;
+}
+
+.review-modal button {
+  padding: 1em 1em;
+  margin: 1em;
+  font-size: 1em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
   
-.verification-modal button:hover {
+.review-modal button:hover {
     background-color: #0062cc;
 }
 
@@ -201,8 +243,8 @@
 .cancel-review-button,
 .review-button {
   padding: 0.7em 1em;
-  margin: 0.7em;
-  font-size: 0.9em;
+  margin: 0.9em;
+  font-size: 0.6em;
   background-color: #007bff;
   color: white;
   border: none;

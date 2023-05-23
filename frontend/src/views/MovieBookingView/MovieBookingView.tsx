@@ -17,17 +17,32 @@ export default function MovieBookingView() {
 
   const handleBooking = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-
+  
     const movieTitle = movie?.title;
-
-    // Save the booking data to localStorage for later use and for simplicity as of now
-    const bookingData = { bookingDate, bookingTime, numTickets, reservedSeats, movieTitle };
-    const existingBookings = JSON.parse(localStorage.getItem("bookingData") || "[]");
-    const updatedBookings = [...existingBookings, bookingData];
-    localStorage.setItem('bookingData', JSON.stringify(updatedBookings));
-
-    setBookingConfirmed(true);
+  
+    // Perform validation for booking restrictions
+    const isBookingAllowed = validateBooking(bookingDate, bookingTime, numTickets, reservedSeats);
+    
+    if (isBookingAllowed) {
+      // Retrieve existing bookings from localStorage
+      const existingBookings = JSON.parse(localStorage.getItem("bookingData") || "[]");
+  
+      // Create a new booking object
+      const newBooking = { bookingDate, bookingTime, numTickets, reservedSeats, movieTitle };
+  
+      // Add the new booking to the existing bookings array
+      const updatedBookings = [...existingBookings, newBooking];
+  
+      // Save the updated bookings array to localStorage
+      localStorage.setItem("bookingData", JSON.stringify(updatedBookings));
+  
+      setBookingConfirmed(true);
+    } else {
+      // Handle booking restrictions violation
+      alert("Prenotazione non disponibile per le opzioni selezionate.");
+    }
   };
+  
 
   const closeModal = () => {
     setBookingConfirmed(false);
@@ -36,6 +51,22 @@ export default function MovieBookingView() {
   const viewAllBookings = () => {
     navigate('/bookings');
   };
+
+  const validateBooking = (date: string, time: string, tickets: number, seats: string) => {
+    // Perform validation logic here based on your specific restrictions
+    const allowedDates = ["25-05", "26-05", "27-05"];
+    const allowedTimes = ["10:00", "14:00", "18:00"];
+    const maxSeats = 50;
+
+    const isDateAllowed = allowedDates.includes(date);
+    const isTimeAllowed = allowedTimes.includes(time);
+    const isSeatsAllowed = seats.split(",").length <= maxSeats;
+
+    return isDateAllowed && isTimeAllowed && isSeatsAllowed;
+  };
+
+  const allowedDates = ["25-05", "26-05", "27-05"];
+  const allowedTimes = ["10:00", "14:00", "18:00"];
 
   return (
     <div className="register-container">
@@ -67,24 +98,36 @@ export default function MovieBookingView() {
         <form onSubmit={handleBooking}>
           <div className="form-group">
             <label htmlFor="bookingDate">Data di prenotazione:</label>
-            <input
+            <select
               className="form-control"
-              type="date"
               id="bookingDate"
               value={bookingDate}
               onChange={(e) => setBookingDate(e.target.value)}
-            />
+            >
+              <option value="">Seleziona una data</option>
+              {allowedDates.map((date) => (
+                <option key={date} value={date}>
+                  {date}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
             <label htmlFor="bookingTime">Ora di prenotazione:</label>
-            <input
+            <select
               className="form-control"
-              type="time"
               id="bookingTime"
               value={bookingTime}
               onChange={(e) => setBookingTime(e.target.value)}
-            />
+            >
+              <option value="">Seleziona un'ora</option>
+              {allowedTimes.map((time) => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">

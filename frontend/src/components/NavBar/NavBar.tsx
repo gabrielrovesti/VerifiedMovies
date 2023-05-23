@@ -58,6 +58,11 @@ export default function NavBar() {
                 </Link>
               </li>
               <li className="navbar-menu-item">
+                <Link to="/bookings" onClick={toggleMobileMenu}>
+                  Prenotazioni
+                </Link>
+              </li>
+              <li className="navbar-menu-item">
                 <Link to="/" onClick={handleLogoutClick}>
                   Esci
                 </Link>
