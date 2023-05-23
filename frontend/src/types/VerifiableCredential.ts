@@ -1,6 +1,4 @@
-/*!
- * Copyright (c) 2022 Digital Credentials Consortium. All rights reserved.
- */
+
 export type Type = string | string[]
 
 export interface ImageObject {
@@ -10,7 +8,6 @@ export interface ImageObject {
 }
 
 export interface LinkedDataObject {
-  // id and type are very common to all Linked Data objects
   id?: string
   type?: Type
   name?: string
@@ -21,13 +18,12 @@ export interface LinkedDataObject {
 export interface IssuerObject extends LinkedDataObject {
   id: string
   url?: string,
-  publicKey?: string; // Add publicKey property as optional
+  publicKey?: string; 
   [x: string]: any
 }
 
 export type VerifiableCredential = VCDIVerifiableCredential | CompactJWT
 
-// Represents a Json Web Token in compact form: "header.payload.signature"
 export type CompactJWT = string
 
 // Represents a Verifiable Credential protected by

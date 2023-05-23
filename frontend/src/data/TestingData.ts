@@ -14,7 +14,7 @@ const movies: Movie[] = [
       title: 'Le ali della libertà',
       year: "1994",
       rating: "9.3",
-      categories: ['Drama'],
+      categories: ['Drammatico'],
       ageRating: 'R',
       imageUrl: firstImage,
     },

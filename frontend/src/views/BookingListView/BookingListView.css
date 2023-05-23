@@ -1,5 +1,5 @@
-.register-container {
-    width: 500px;
+.booking-container {
+    width: 600px;
     height: auto;
     margin: 0 auto;
     padding: 1.5em;
@@ -7,16 +7,15 @@
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     border-radius: 2em;
     overflow: hidden;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    text-align: center;
+    
 }
-  
-.full-height {
-    height: 100vh;
-}
-  
+
 .form-group {
     margin-bottom: 20px;
 }
@@ -44,65 +43,32 @@
     box-shadow: 0 0 0 0.2rem rgba(63, 81, 181, 0.25);
 }
   
-.btn-primary {
-    display: inline-block;
-    font-weight: 400;
-    color: #fff;
-    background-color: #3f51b5;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    text-align: center;
-    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
-}
-  
-.btn-primary:hover {
-    background-color: #303f9f;
-}
-  
-.btn-primary:focus {
-    outline: none;
-    box-shadow: 0 0 0 0.2rem rgba(63, 81, 181, 0.5);
-}
-  
-.btn-register {
-    display: block;
-    margin-top: 20px;
-    margin-bottom: 0;
-}
-  
 .booking-list-container {
     width: 500px;
     height: auto;
-    margin: 0 auto;
-    padding: 1.5em;
     background-color: #fff;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     border-radius: 2em;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 2em;
     text-align: center;
 }
   
 .booking-list-container h2 {
     font-size: 1.5em;
     font-weight: bold;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.2em;
 }
   
 .booking-details {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 2em;
+    margin-top: 1em;
     text-align: center;
+    border:rgba(0, 0, 0, 0.1);
+    border-style: solid;
+    border-radius: 1em;
+    padding: 0.5em;
 }  
   
 .booking-details h3 {
@@ -119,5 +85,34 @@
 .booking-list-container p {
     text-align: center;
     margin-top: 2em;
+}
+
+@media (max-width: 600px) {
+    .booking-container {
+      width: 70%;
+      margin-left: 1em;
+      margin-right: 1em;
+    }
+    
+    .booking-list-container {
+      width: 100%;
+    }
+    
+    .booking-list-container h2 {
+      font-size: 1.2em;
+    }
+    
+    .booking-details {
+      margin-top: 1em;
+      padding: 0.5em;
+    }
+    
+    .booking-details h3 {
+      font-size: 1em;
+    }
+    
+    .form-control {
+      font-size: 14px;
+    }
 }
   

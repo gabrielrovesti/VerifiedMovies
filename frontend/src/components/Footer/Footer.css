@@ -9,7 +9,7 @@
   text-align: center;
   box-sizing: border-box;
   display: flex;
-  flex-shrink: 0; /* Prevent the footer from shrinking */
+  flex-shrink: 0; 
 }
   
 .footer-content {

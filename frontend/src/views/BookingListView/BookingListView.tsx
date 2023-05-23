@@ -1,10 +1,11 @@
 import React from "react";
+import "./BookingListView.css";
 
 export default function BookingListView() {
   const bookingData = JSON.parse(localStorage.getItem("bookingData") || "[]");
 
   return (
-    <div className="register-container full-height">
+    <div className="booking-container full-height">
       <div className="booking-list-container">
         <h2>Tutte le prenotazioni</h2>
 

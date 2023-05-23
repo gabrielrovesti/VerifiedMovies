@@ -71,3 +71,8 @@ pre: cd into /frontend and install dependencies with 'npm install'
 ##### In practice
 
 > npm start
+
+##### Testing data
+
+- If the Hardhat accounts change, remember to change contract address and relative accounts inside code
+- Also, if you need a testing DID, you can use: ```did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266```

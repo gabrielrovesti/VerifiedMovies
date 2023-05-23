@@ -12,7 +12,8 @@ body {
 
 .account-container {
   width: 500px;
-  margin: 0em auto; /* Adjust the margin value as needed */
+  margin: 0em auto;
+  margin-top: 1.5em;
   padding: 1.5em;
   background-color: #fff;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
@@ -22,12 +23,12 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
-  min-height: calc(100vh - 160px); /* Adjust the value based on your navbar and footer height */
-  flex-grow: 1; /* Take up the remaining vertical space */
+  min-height: calc(100vh - 200px);
+  flex-grow: 1;
 }
 
 .account-container h2 {
-    font-size: 1.5em;
+    font-size: 1.6em;
     font-weight: bold;
     margin-bottom: 0.5em;
     text-align: center;
@@ -41,6 +42,7 @@ body {
     display: block;
     font-weight: bold;
     margin-bottom: 10px;
+    font-size: 0.8em;
 }
 
 .form-group input[type="text"],
@@ -64,10 +66,9 @@ body {
 
 .button-container button {
   padding: 0.75em 1em;
-  font-size: 1em;
   border: none;
   border-radius: 0.25em;
-  background-color: #007bff;
+  background-color: #4c78a8;
   color: #fff;
   cursor: pointer;
   margin: 0 0.5em;
@@ -86,11 +87,11 @@ body {
   background-color: #0056b3;
 }
 
-/* Mobile Styles */
 @media (max-width: 768px) {
   .account-container {
     padding: 1em;
-    min-height: calc(100vh - 160px);
+    min-height: calc(100vh - 200px);
+    max-width: 400px;
   }
 
   .account-container h2 {
@@ -116,19 +117,16 @@ body {
     width: 100%;
     margin-top: 0.5em;
     padding: 0.75em 1em;
-    font-size: 1em;
     border: none;
     border-radius: 0.25em;
-    background-color: #007bff;
+    background-color: #4c78a8;
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s ease;
     box-sizing: border-box;
   }
   
-  .button-container button:first-child {
-    margin-top: 0; /* Remove the top margin from the first button */
-  }
+
 }
 
 

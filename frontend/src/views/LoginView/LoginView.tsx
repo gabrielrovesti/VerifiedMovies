@@ -97,23 +97,24 @@ export default function LoginView() {
             required
           />
         </div>
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn-login-primary">
           Accedi
         </button>
       </form>
       {showVerificationModal && (
-    <div className="modal">
-      <div className="modal-content">
-          <h2>Dimostra che sei tu. </h2>
-          <p>Questo è il tuo numero:</p>
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Dimostra che sei tu.</h2>
+            <p>Questo è il tuo numero:</p>
             <h1>{randomNumber}</h1>
-          <div className="modal-buttons">
-            <button onClick={handleVerificationSubmit}>Verifica</button>
-            <button onClick={handleVerificationClose}>Chiudi</button>
+            <div className="modal-buttons">
+              <button onClick={handleVerificationSubmit}>Verifica</button>
+              <button onClick={handleVerificationClose}>Chiudi</button>
+            </div>
           </div>
-      </div>
-    </div>
-    )}
+        </div>
+      )}
     </div>
   );
+  
 }

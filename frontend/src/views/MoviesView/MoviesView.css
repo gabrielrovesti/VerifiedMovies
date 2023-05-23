@@ -1,20 +1,25 @@
 .movies-container {
-    padding: 20px;
     color: white;
     text-align: center;
-    min-height: calc(100vh - 160px); /* Adjust the height based on your footer height */
+    min-height: calc(100vh - 160px); 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    margin-bottom: 40px; /* Add margin to create space between movies and footer */
+}
+
+.movies-container h2 {
+    font-size: 3rem;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    color:rgba(255, 255, 255, 0.5);
 }
   
 .movies-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 20px;
-    margin-bottom: 40px; /* Add margin to create space between movies and footer */
+    margin-bottom: 40px; 
 }
 
 .movie-card {
@@ -25,6 +30,8 @@
     box-shadow: 0 0 10px rgba(0, 0, 0.2);
     transition: transform 0.3s ease-in-out;
     font-size: 1.5em;
+    color:rgba(255, 255, 255, 0.5);
+
 }
   
 .movie-card:hover {
@@ -38,7 +45,13 @@
 }
   
 .movie-info {
-    padding: 10px;
+    padding: 0.2em;
+}
+
+.movie-info h3{
+    margin: 0;
+    font-size: 1em;
+    text-align: center;
 }
   
 .age-rating {
@@ -52,12 +65,12 @@
 }
   
 .age-rating-r {
-    background-color: red;
+    background-color: rgb(176, 81, 81);
     color: white;
 }
   
 .age-rating-pg-13 {
-    background-color: orange;
+    background-color: rgb(101, 77, 33);
     color: white;
 }
   
@@ -92,10 +105,12 @@
     font-size: 1em;
     margin-bottom: 0.5em;
     text-align: center;
+    color: black;
 }
   
 .verification-modal h2 {
     margin-top: 0;
+    color: black;
 }
   
 .verification-modal p {
@@ -106,7 +121,7 @@
     padding: 1em 1em;
     margin: 1em;
     font-size: 1em;
-    background-color: #007bff;
+    background-color: #4c78a8;
     color: white;
     border: none;
     border-radius: 5px;
@@ -122,7 +137,6 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   text-align: center;
   overflow: hidden;
-  /*Align items center*/
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -147,7 +161,7 @@
   padding: 1em 1em;
   margin: 1em;
   font-size: 1em;
-  background-color: #007bff;
+  background-color: #4c78a8;
   color: white;
   border: none;
   border-radius: 5px;
@@ -156,7 +170,7 @@
 }
   
 .review-modal button:hover {
-    background-color: #0062cc;
+  background-color: #0062cc;
 }
 
 .spinner {
@@ -235,17 +249,15 @@
     }
 }
 
-/* New styles for buttons */
-
 .share-button,
 .cancel-share-button,
 .submit-review-button,
 .cancel-review-button,
 .review-button {
-  padding: 0.7em 1em;
-  margin: 0.9em;
+  padding: 0.6em 0.6em;
+  margin: 0.6em;
   font-size: 0.6em;
-  background-color: #007bff;
+  background-color: #4c78a8;
   color: white;
   border: none;
   border-radius: 5px;
@@ -260,8 +272,6 @@
 .review-button:hover {
   background-color: #0062cc;
 }
-
-/* Additional styling for textarea */
 
 .review-textarea {
   width: 100%;

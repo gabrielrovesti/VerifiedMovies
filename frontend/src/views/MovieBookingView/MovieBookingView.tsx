@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import movies from '../../data/TestingData';
 import { useNavigate } from "react-router-dom";
+import "./MovieBookingView.css";
 
 export default function MovieBookingView() {
   const { id } = useParams();
@@ -43,7 +44,6 @@ export default function MovieBookingView() {
     }
   };
   
-
   const closeModal = () => {
     setBookingConfirmed(false);
   };
@@ -69,11 +69,11 @@ export default function MovieBookingView() {
   const allowedTimes = ["10:00", "14:00", "18:00"];
 
   return (
-    <div className="register-container">
+    <div className="movie-container">
       <h2>
         Prenota qui per
         <p></p>
-        "<span className="movie-title">{movie?.title}</span>"
+        <span className="movie-title">"{movie?.title}"</span>
       </h2>
 
       {bookingConfirmed ? (
@@ -145,14 +145,14 @@ export default function MovieBookingView() {
             <label htmlFor="reservedSeats">Posti che vuoi riservare:</label>
             <input
               className="form-control"
-              type="text"
+              type="number"
               id="reservedSeats"
               value={reservedSeats}
               onChange={(e) => setReservedSeats(e.target.value)}
             />
           </div>
 
-          <button className="btn-primary btn-register" type="submit">
+          <button className="btn-movie-primary btn-movie-register" type="submit">
             Prenota
           </button>
         </form>

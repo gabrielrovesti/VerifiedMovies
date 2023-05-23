@@ -27,17 +27,20 @@
   
 .navbar-menu-item {
     margin-left: 1em;
+    border: 1px solid white;
+    border-radius: 1em;
+    padding: 0em 0.5em;
 }
   
 .navbar-menu-item a {
-    font-size: 20px;
+    font-size: 0.7em;
     color: #ffffff;
     text-decoration: none;
     transition: all 0.3s ease-in-out;
 }
   
 .navbar-menu-item a:hover {
-    color: #ff0000;
+    color: #FF8A8A;
 }
   
 .mobile-menu-toggle {
@@ -46,13 +49,37 @@
     font-size: 1.5em;
     cursor: pointer;
 }
-  
+
+.logout-modal {
+  background-color: white;
+  color: black;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  overflow: hidden;
+}
+
+.logout-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-image{
+  margin-right: 0.5em;
+}
+
 @media (max-width: 768px) {
   .navbar-menu {
     display: none;
   }
 
-  /*Have menu voices appear under the menu*/
   .navbar-menu.active {
     display: flex;
     flex-direction: column;

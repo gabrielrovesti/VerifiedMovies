@@ -521,7 +521,7 @@ export default function MoviesView() {
     
         return (
           <div key={movie.id} className="movie-card" onClick={() => openVerificationModal(movie)}>
-            <img className="movie-image" src={movie.imageUrl} alt={movie.title} />
+            <img className="movie-image" src={movie.imageUrl} alt={"Immagine del film " + movie.title} />
             <div className="movie-info">
               <h3>{movie.title}</h3>
               <p>Anno: {movie.year}</p>
@@ -545,7 +545,7 @@ export default function MoviesView() {
     
     return (
       <div className="movies-container">
-        <h1>Film in evidenza</h1>
+        <h2>Film in evidenza</h2>
         <SearchBox onSearch={handleSearch} />
         <div className="movies-grid">
           {renderMovies()}
@@ -554,7 +554,7 @@ export default function MoviesView() {
         {showVerificationModal && selectedMovie && !reviewModalOpen && !shareModalOpen && (
           <div className="modal-overlay">
             <div className="verification-modal">
-              <h2>Verifica la tua età</h2>
+              <h2>Verifica la tua età per continuare</h2>
               <p>{verificationStatus}</p>
               {showLoading && <div className="spinner" />}
               {!isVerified && <p>Questo film è valutato {selectedMovie.ageRating}. Per favore, dimostra la tua età per accedere al film e prenotarlo.</p>}

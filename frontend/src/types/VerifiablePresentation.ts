@@ -1,11 +1,5 @@
-/*!
- * Copyright (c) 2022 Digital Credentials Consortium. All rights reserved.
- */
-import {
-    LinkedDataObject,
-    Type,
-    VerifiableCredential
-  } from './VerifiableCredential'
+
+import { LinkedDataObject, Type, VerifiableCredential } from './VerifiableCredential'
   
   export interface VerifiablePresentation extends LinkedDataObject {
     '@context': any

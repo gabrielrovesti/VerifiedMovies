@@ -65,6 +65,7 @@ export default function RegisterView() {
   };
 
   const handleVerificationSubmit = async () => {
+    // Check if email and DID already exist
 
     const isEmailExisting = checkEmailExisting(email);
     const isDidExisting = checkDidExisting(did);
@@ -82,6 +83,9 @@ export default function RegisterView() {
     } else {
       setDidError("");
     }
+
+    // Meccanismo challenge-response di registrazione e login per non dipendere da piattaforme esterne
+    // (es. Metamask) che sono stato costretto a dover implementare per poi sentirmi dire di non doverlo fare
 
     // Connessione a Web3 e al contratto
     const web3 = new Web3('http://localhost:8545');
@@ -113,6 +117,7 @@ export default function RegisterView() {
     };
 
     // Recupero il didUrl da verificationMethod e lo uso per verificare la firma associata all'account X
+    
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const didUrl = proof.verificationMethod;
 
@@ -143,17 +148,14 @@ const handleVerificationClose = () => {
 const handleSubmit = (event: { preventDefault: () => void; }) => {
   event.preventDefault();
 
-  // Validate required fields
   if (!username || !email || !dateOfBirth || !did) {
-    alert("Please fill in all the required fields");
+    alert("Per favore, riempi tutti i campi correttamente");
     return;
   }
 
-  // Calculate user age
   const age = calculateAge(dateOfBirth);
   setAge(age);
 
-  // Generate random number for verification
   const randomNumber = Math.floor(Math.random() * 1000000) + 1;
   setRandomNumber(randomNumber);
 
@@ -164,7 +166,6 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
   setEmailError("");
   setDidError("");
 
-  // Show verification modal
   setShowVerificationModal(true);
 };
 
@@ -194,7 +195,11 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
             onChange={handleEmailChange}
             required
           />
-          {emailError && <span className="error-message">{emailError}</span>}
+          {emailError && (
+            <span id="emailError" className="error-message">
+              {emailError}
+            </span>
+          )}
         </div>
 
         <div className="form-group">
@@ -219,17 +224,21 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
             onChange={handleDidChange}
             required
           />
-          {didError && <span className="error-message">{didError}</span>}
+          {didError && (
+            <span id="didError" className="error-message">
+              {didError}
+            </span>
+          )}
         </div>
 
-        <button type="submit" className="btn btn-primary btn-register">
+        <button type="submit" className="btn-primary btn-register">
           Registrati
         </button>
       </form>
       {showVerificationModal && (
         <div className="modal">
           <div className="modal-content">
-            <h2>Dimostra che sei tu. </h2>
+            <h2>Dimostra che sei tu.</h2>
             <p>Questo è il tuo numero:</p>
             <h1>{randomNumber}</h1>
             <div className="modal-buttons">
@@ -241,4 +250,6 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
       )}
     </div>
   );
+
+
 }

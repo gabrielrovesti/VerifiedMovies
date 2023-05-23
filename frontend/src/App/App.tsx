@@ -1,8 +1,8 @@
 import React from 'react';
 import './App.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Footer from '../components/Footer/Footer';
 import NavBar from '../components/NavBar/NavBar';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginView from '../views/LoginView/LoginView';
 import HomePage from '../views/HomePage/HomePage';
 import RegisterView from '../views/RegisterView/RegisterView';
@@ -11,6 +11,7 @@ import AccountView from '../views/AccountView/AccountView';
 import MovieBookingView from '../views/MovieBookingView/MovieBookingView';
 import BookingListView from '../views/BookingListView/BookingListView';
 import { AuthProvider } from '../context/AuthContext';
+import ErrorView from '../views/ErrorView/ErrorView';
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/account" element={<AccountView />} />
           <Route path="/movies/:id/book" element={<MovieBookingView />} />
           <Route path="/bookings" element={<BookingListView />} />
+          <Route path="*" element={<ErrorView />} />
         </Routes>
         <Footer />
       </AuthProvider>

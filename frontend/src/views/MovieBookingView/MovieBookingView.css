@@ -1,27 +1,32 @@
-.register-container {
+.movie-container {
     width: 500px;
     height: auto;
     margin: 0 auto;
-    padding: 1.5em;
+    padding: 1em;
     background-color: #fff;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     border-radius: 2em;
     overflow: hidden;
+    margin-top: 1em;
+    text-align: center;
+    margin-bottom: 0.5em;
+    background-repeat: no-repeat; 
+    height: calc(100vh - 240px); 
 }
 
-.register-container form {
+.movie-container form {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-.register-container .btn-register {
-  margin-top: 1em; /* Adjust the margin as needed */
+.movie-container .btn-movie-register {
+  margin-top: 1em; 
   align-self: center;
 }
   
-.register-container h2 {
+.movie-container h2 {
     font-size: 1.5em;
     font-weight: bold;
     margin-bottom: 0.5em;
@@ -55,7 +60,7 @@
     box-shadow: 0 0 0 0.2rem rgba(63, 81, 181, 0.25);
 }
   
-.btn-primary {
+.btn-movie-primary {
     display: inline-block;
     font-weight: 400;
     color: #fff;
@@ -69,16 +74,16 @@
     transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
   
-.btn-primary:hover {
+.btn-movie-primary:hover {
     background-color: #303f9f;
 }
   
-.btn-primary:focus {
+.btn-movie-primary:focus {
     outline: none;
     box-shadow: 0 0 0 0.2rem rgba(63, 81, 181, 0.5);
 }
 
-.btn-register {
+.btn-movie-register {
     display: block;
     margin-top: 20px;
     margin-bottom: 0;
@@ -158,5 +163,35 @@
     margin-top: 0.5em;
     font-size: 1.2em;
     font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .movie-container {
+      width: 70%;
+    }
+    
+    .movie-container h2 {
+      font-size: 1.2em;
+    }
+    
+    .form-control {
+      font-size: 14px;
+    }
+    
+    .modal-content {
+      width: 300px;
+    }
+    
+    .modal h2 {
+      font-size: 1.2em;
+    }
+    
+    .modal h1 {
+      font-size: 2em;
+    }
+    
+    .movie-title {
+      font-size: 1em;
+    }
 }
   

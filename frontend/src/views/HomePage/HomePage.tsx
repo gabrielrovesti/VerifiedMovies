@@ -14,23 +14,23 @@ export default function HomePage() {
   }, []);
 
   return (
-     <div className="index">
-        <div className="hero">
-        <h1>Un cinema all'avanguardia</h1>
+     <main className="index">
+        <header className="hero">
+        <h1>Il cinema del futuro</h1>
         <p>
-          Scopri un'ampia selezione di film e spettacoli imperdibili e acquista i biglietti in modo sicuro,  basato su blockchain.
+          Scopri un'ampia selezione di film e spettacoli imperdibili e acquista i biglietti in modo sicuro con l'uso di blockchain.
         </p>
-        </div>
-        <div className="social-proof">
-          <div className="testimonial">
-            <p>"Ho apprezzato molto l'ampia selezione di film disponibili. Grazie al nostro sistema di verifica dell'identità, mi sento al sicuro durante la prenotazione e l'acquisto dei biglietti!"</p>
+        </header>
+        <section className="social-proof">
+          <div className="testimonial" aria-labelledby="testimonial1">
+            <p id="testimonial1">Grazie a VerifiedMovies, posso godermi una vasta selezione di film. La tecnologia blockchain e la sicurezza del sistema garantiscono la mia privacy in un modo così semplice; non me l'aspettavo!"</p>
             <p className="author">- Maria R.</p>
           </div>
-          <div className="testimonial">
-            <p>"Sono rimasto colpito dalla sicurezza dei dati offerta dal nostro sistema di verifica. Mi sento tranquillo mentre acquisto i biglietti e guardo gli spettacoli."</p>
+          <div className="testimonial" aria-labelledby="testimonial2">
+            <p id="testimonial2">"VerifiedMovies offre un livello di sicurezza eccezionale grazie alla verifica delle informazioni tramite la blockchain. Posso acquistare i biglietti in tutta tranquillità, in modo semplice e protetto davvero."</p>
             <p className="author">- Luca M.</p>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
   );
 };

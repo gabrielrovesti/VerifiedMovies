@@ -4,15 +4,29 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import "./NavBar.css";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../logo192.png";
+import { useNavigate } from "react-router-dom";
 
 export default function NavBar() {
   const { isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [logoutMessage, setLogoutMessage] = useState("");
 
-  const handleLogoutClick = () => {
-    logout();
+  const navigate = useNavigate();
+
+  const handleLogoutClick = (event: { preventDefault: () => void; }) => {
+    event.preventDefault(); 
+    setShowLogoutModal(true);
+    setLogoutMessage("Disconnessione in corso..");
+  
+    setTimeout(async () => {
+      await logout();
+      setShowLogoutModal(false);
+      setLogoutMessage("");
+      navigate("/");
+    }, 2000);
   };
-
+  
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -21,7 +35,7 @@ export default function NavBar() {
     <nav className="navbar-container">
       <div className="navbar-logo">
         <Link to="/">
-          <img src={logo} alt="VerifiedMovies" className="logo-image" />
+          <img src={logo} alt="Logo del sito VerifiedMovies: cliccami per tornare alla pagina principale" className="logo-image" />
         </Link>
       </div>
       <div className={`navbar-menu ${mobileMenuOpen ? "active" : ""}`}>
@@ -74,6 +88,14 @@ export default function NavBar() {
       <div className="mobile-menu-toggle" onClick={toggleMobileMenu}>
         {mobileMenuOpen ? <FaTimes /> : <FaBars />}
       </div>
+
+      {showLogoutModal && (
+        <div className="logout-modal">
+          <div className="logout-modal-content">
+            <p>{logoutMessage}</p>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
