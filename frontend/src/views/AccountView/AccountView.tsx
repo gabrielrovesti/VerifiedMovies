@@ -19,7 +19,7 @@ export default function AccountView() {
   
   const handleEditProfile = () => {
     const updatedUserData = {
-    did: user?.did || "", // Optional chaining to access the value safely
+    did: user?.did || "", 
     };
 
     localStorage.setItem("userData", JSON.stringify(updatedUserData));
@@ -32,18 +32,20 @@ export default function AccountView() {
     const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
     const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
 
-    // Prendo l'account dell'utente
     const accounts = await web3.eth.getAccounts();
-    //const userDid = localStorage.getItem('loggedDID');
 
     // Deactivate the user's DID document
     await contract.methods.deactivate().send({ from: accounts[0] });
 
     // Perform other necessary cleanup tasks, such as clearing local storage or session data
-
     localStorage.removeItem('userData');
     localStorage.removeItem('loggedDID');
     setUser(null);
+
+    // Show a confirmation message
+    alert('Il tuo account è stato cancellato con successo!');
+
+    // Redirect the user to the login page
     navigate('/login');
   };
 

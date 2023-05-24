@@ -569,7 +569,7 @@ export default function MoviesView() {
         {reviewModalOpen && (
           <div className="modal-overlay">
             <div className="review-modal">
-              <h2>Scrivi una recensione</h2>
+              <h3>Scrivi una recensione</h3>
               <textarea
                 className="review-textarea"
                 value={reviewText}

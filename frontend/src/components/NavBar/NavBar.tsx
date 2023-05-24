@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import "./NavBar.css";
@@ -15,10 +15,10 @@ export default function NavBar() {
   const navigate = useNavigate();
 
   const handleLogoutClick = (event: { preventDefault: () => void; }) => {
-    event.preventDefault(); 
+    event.preventDefault();
     setShowLogoutModal(true);
     setLogoutMessage("Disconnessione in corso..");
-  
+
     setTimeout(async () => {
       await logout();
       setShowLogoutModal(false);
@@ -26,7 +26,13 @@ export default function NavBar() {
       navigate("/");
     }, 2000);
   };
-  
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setMobileMenuOpen(false);
+    }
+  }, [isAuthenticated]);
+
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -35,7 +41,11 @@ export default function NavBar() {
     <nav className="navbar-container">
       <div className="navbar-logo">
         <Link to="/">
-          <img src={logo} alt="Logo del sito VerifiedMovies: cliccami per tornare alla pagina principale" className="logo-image" />
+          <img
+            src={logo}
+            alt="Logo del sito VerifiedMovies: clicca qui per tornare alla pagina principale"
+            className="logo-image"
+          />
         </Link>
       </div>
       <div className={`navbar-menu ${mobileMenuOpen ? "active" : ""}`}>

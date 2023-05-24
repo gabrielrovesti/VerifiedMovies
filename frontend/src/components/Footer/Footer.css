@@ -10,6 +10,7 @@
   box-sizing: border-box;
   display: flex;
   flex-shrink: 0; 
+  border-top: 0.1em solid #ffffffbb;
 }
   
 .footer-content {

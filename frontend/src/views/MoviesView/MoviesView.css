@@ -12,7 +12,7 @@
     font-size: 3rem;
     margin-top: 0.5em;
     margin-bottom: 0.5em;
-    color:rgba(255, 255, 255, 0.5);
+    color:rgba(255, 255, 255, 0.6);
 }
   
 .movies-grid {
@@ -30,8 +30,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0.2);
     transition: transform 0.3s ease-in-out;
     font-size: 1.5em;
-    color:rgba(255, 255, 255, 0.5);
-
+    color:rgba(255, 255, 255, 0.6);
 }
   
 .movie-card:hover {
@@ -151,6 +150,7 @@
 
 .review-modal h2 {
   margin-top: 0;
+  color: black;
 }
 
 .review-modal p {
