@@ -27,29 +27,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const logout = () => {
-    localStorage.removeItem("userIsLoggedIn");
-    localStorage.removeItem("loggedDid");
+    localStorage.setItem("userIsLoggedIn", "false");
+    localStorage.setItem("loggedDID", "");
     setUser(null);
     setIsAuthenticated(false);
-  };
-
-  useEffect(() => {
-    const userIsLoggedIn = localStorage.getItem("userIsLoggedIn");
-    if (userIsLoggedIn === "true") {
-      setUser({
-        did: localStorage.getItem("loggedDid") || "",
-      });
-    }
-  }, [isAuthenticated]);  
+  };  
 
   useEffect(() => {
     setIsAuthenticated(Boolean(user));
   }, [user]);
 
   useEffect(() => {
+    const userIsLoggedIn = localStorage.getItem("userIsLoggedIn");
+    if (userIsLoggedIn === "true") {
+      setUser({
+        did: localStorage.getItem("loggedDID") || "",
+      });
+    }
+  }, [isAuthenticated]);  
+
+  useEffect(() => {
     if (isAuthenticated) {
       localStorage.setItem("userIsLoggedIn", "true");
-      localStorage.setItem("loggedDid", user?.did || "");
+      localStorage.setItem("loggedDID", user?.did || "");
     }
   }, [isAuthenticated, user]);
 

@@ -39,9 +39,7 @@ export default function LoginView() {
     // Firmo il messaggio
     const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
   
-    // Crea un nuovo DID per l'utente nel caso non lo abbia già (se lo ha, lo recupera dal local storage, caso mio)
-
-    const userDid = await contract.methods.createDid().send({ from: accounts[0] }); 
+    const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
   
     // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
     // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite

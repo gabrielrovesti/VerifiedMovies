@@ -21,6 +21,7 @@ export default function NavBar() {
 
     setTimeout(async () => {
       await logout();
+      localStorage.setItem("userIsLoggedIn", "false");
       setShowLogoutModal(false);
       setLogoutMessage("");
       navigate("/");
