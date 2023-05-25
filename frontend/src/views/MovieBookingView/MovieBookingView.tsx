@@ -13,7 +13,6 @@ export default function MovieBookingView() {
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const navigate = useNavigate();
 
-  // Find the movie based on the ID
   const movie = movies.find((movie) => movie.id === id);
 
   const handleBooking = (e: { preventDefault: () => void; }) => {
@@ -21,25 +20,19 @@ export default function MovieBookingView() {
   
     const movieTitle = movie?.title;
   
-    // Perform validation for booking restrictions
     const isBookingAllowed = validateBooking(bookingDate, bookingTime, numTickets, reservedSeats);
     
     if (isBookingAllowed) {
-      // Retrieve existing bookings from localStorage
       const existingBookings = JSON.parse(localStorage.getItem("bookingData") || "[]");
   
-      // Create a new booking object
       const newBooking = { bookingDate, bookingTime, numTickets, reservedSeats, movieTitle };
   
-      // Add the new booking to the existing bookings array
       const updatedBookings = [...existingBookings, newBooking];
   
-      // Save the updated bookings array to localStorage
       localStorage.setItem("bookingData", JSON.stringify(updatedBookings));
   
       setBookingConfirmed(true);
     } else {
-      // Handle booking restrictions violation
       alert("Prenotazione non disponibile per le opzioni selezionate.");
     }
   };
@@ -53,7 +46,6 @@ export default function MovieBookingView() {
   };
 
   const validateBooking = (date: string, time: string, tickets: number, seats: string) => {
-    // Perform validation logic here based on your specific restrictions
     const allowedDates = ["25-05", "26-05", "27-05"];
     const allowedTimes = ["10:00", "14:00", "18:00"];
     const maxSeats = 50;

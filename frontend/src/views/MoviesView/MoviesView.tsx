@@ -47,7 +47,6 @@ export default function MoviesView() {
   const [permalinkCopied, setPermalinkCopied] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
-
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
@@ -83,8 +82,6 @@ export default function MoviesView() {
 
   const submitReview = () => {
     if (selectedMovie !== null) {
-      // Save the review in local storage
-      localStorage.setItem(`review_${selectedMovie.id}`, reviewText);
       setReviewSubmitted(true);
     }
     setReviewText('');
@@ -134,11 +131,15 @@ export default function MoviesView() {
       setShowLoading(true);
       setVerificationStatus('In corso...');
       await new Promise(resolve => setTimeout(resolve, 2000));
-        
-      const userDID = await getUserDID();
+      
+      const web3 = new Web3('http://localhost:8545');
+      const contractAddress = '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F'
+      const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
+      const accounts = await web3.eth.getAccounts();
+      const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
 
-      if (userDID !== null) {
-        const vc = await retrieveVC(userDID);
+      if (userDid !== null) {
+        const vc = await retrieveVC(userDid);
 
         const vp = await createVP(vc, vc.proof.signature, vc.proof.signatureCorrectnessProof);
 
@@ -147,37 +148,32 @@ export default function MoviesView() {
         if (isVerified) {
           setShowLoading(false);
           setIsVerified(true);
-          setVerificationStatus('Verifica avvenuta correttamente');
+          setVerificationStatus('Verifica avvenuta correttamente!');
           await new Promise(resolve => setTimeout(resolve, 2000));
           navigate(`/movies/${movie.id}/book`); 
 
         } else {
           setIsVerified(false);
           setShowLoading(false);
-          setVerificationStatus('Verifica fallita: firma non valida');
+          setVerificationStatus('Verifica fallita: firma non valida.');
           await new Promise(resolve => setTimeout(resolve, 2000));
           setShowVerificationModal(false);
         }
       } 
       else {
         setShowLoading(false);
-        setVerificationStatus('Verifica fallita: DID non esistente'); 
+        setVerificationStatus('Verifica fallita: DID non esistente.'); 
         await new Promise(resolve => setTimeout(resolve, 2000));
         setShowVerificationModal(false);
       }
 
     } catch (error) {
       console.log("Errore durante la verifica: ", error);
-      setVerificationStatus('Verifica fallita: si consiglia di riprovare più tardi');
+      setVerificationStatus('Verifica fallita: si consiglia di riprovare più tardi.');
       setShowLoading(false);
       await new Promise(resolve => setTimeout(resolve, 2000));
       setShowVerificationModal(false);
     }
-  }
-  
-  async function getUserDID() {    
-    const userDID = localStorage.getItem('loggedDID');
-    return userDID;
   }
   
   /*
@@ -195,18 +191,19 @@ export default function MoviesView() {
   Below these is a safe implementation of the CLSignature2019 signature algorithm. It uses the bn.js library for big number arithmetic and the elliptic library for elliptic curve cryptography.
   */
  
-  async function retrieveVC(userDID: string | null) {
+  async function retrieveVC(userDid: string | null) {
       setVerificationStatus('Recupero della credenziale...');
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const web3 = new Web3('http://localhost:8545');
-      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+      const contractAddress = '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F'
       const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
 
       const accounts = await web3.eth.getAccounts();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const issuer = await contract.methods.createDid().send({ from: accounts[4] }); //here we do use one of the issuers account resolving then the chain below
       const issuerDid = await contract.methods.createDid().call({ from: accounts[4] });
+
 
       // Generate a private key for the issuer
       const privateKey = new BN(1373628729, 16); 
@@ -281,7 +278,7 @@ export default function MoviesView() {
         
         // For the sake of simplicity, I will use the same signature type for all the credentials.
         credentialSchema: { 
-            id: userDID ? userDID : "",
+            id: userDid ? userDid : "",
             type: "VerifiableCredential"
         },        
         issuer: {
@@ -290,7 +287,7 @@ export default function MoviesView() {
         } as IssuerObject,
         issuanceDate: new Date().toISOString(),
         credentialSubject: {
-          id: userDID,
+          id: userDid,
           age: 25,
           type: 'VerifiableCredential',
         } as CredentialSubject,
@@ -408,12 +405,13 @@ export default function MoviesView() {
 
         let isValidProof = publicKeyEC.verify(signatureCorrectnessProofBytes, signature);
 
-        //Check if the signature has "r" and "s" values, which were the same used to create the signature correctness proof
-        //this here is a stupid but easy workaround, since the library doesn't provide a way to check if the signature correctness proof is valid
+        // Check if the signature has "r" and "s" values, which were the same used to create the signature correctness proof
+        // this here is a stupid but easy workaround, since the library doesn't provide a way to check if the signature correctness proof is valid
+        
         if(signature.r && signature.s) {
-          isValidProof = true;
+            isValidProof = true;
         } else {
-          isValidProof = false;
+            isValidProof = false;
         }
 
         return isValidProof;
@@ -424,7 +422,7 @@ export default function MoviesView() {
       await new Promise(resolve => setTimeout(resolve, 2000));
         
       const web3 = new Web3('http://localhost:8545');
-      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+      const contractAddress = '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F';
       const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
     
       const resolutionResult = await contract.methods.resolve(issuerDid).call();
@@ -452,7 +450,7 @@ export default function MoviesView() {
       
       // We check if the issuer is in the chain of trust and was found
       if (index === -1) {
-        setVerificationStatus("Errore nella verifica della catena di fiducia; le credenziali non sono valide");
+        setVerificationStatus("Errore nella verifica della catena di fiducia; le credenziali non sono valide.");
         return false;
       }
       
@@ -461,7 +459,7 @@ export default function MoviesView() {
       
       // We finally check if the issuer is inside the chain of trust and corresponds to the right account (the last chain node here is the VC issuer)
       if (!foundIssuer && lastDIDInChain.toLowerCase() !== issuerDid.toLowerCase()) {
-        setVerificationStatus("Errore nella verifica della catena di fiducia; le credenziali non sono valide");
+        setVerificationStatus("Errore nella verifica della catena di fiducia; le credenziali non sono valide.");
         return false;
       }
           

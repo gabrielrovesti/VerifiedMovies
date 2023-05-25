@@ -27,8 +27,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const logout = () => {
-    localStorage.setItem("userIsLoggedIn", "false");
-    localStorage.setItem("loggedDID", "");
     setUser(null);
     setIsAuthenticated(false);
   };  
@@ -36,22 +34,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     setIsAuthenticated(Boolean(user));
   }, [user]);
-
-  useEffect(() => {
-    const userIsLoggedIn = localStorage.getItem("userIsLoggedIn");
-    if (userIsLoggedIn === "true") {
-      setUser({
-        did: localStorage.getItem("loggedDID") || "",
-      });
-    }
-  }, [isAuthenticated]);  
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      localStorage.setItem("userIsLoggedIn", "true");
-      localStorage.setItem("loggedDID", user?.did || "");
-    }
-  }, [isAuthenticated, user]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, isAuthenticated, logout }}>

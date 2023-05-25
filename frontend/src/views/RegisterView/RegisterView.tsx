@@ -1,8 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./RegisterView.css";
 import { AbiItem } from 'web3-utils';
 import Web3 from "web3";
 import SelfSovereignIdentity from "../../contracts/SelfSovereignIdentity.json";
+import { encryptData, decryptData } from "../../utils/Safe";
+
+async function decryptUserData() {
+  const encryptedUserData = JSON.parse(localStorage.getItem("encryptedUserData") || "{}");
+  const encryptedData = new Uint8Array(encryptedUserData.encryptedData);
+  const iv = encryptedUserData.iv ? new Uint8Array(encryptedUserData.iv) : new Uint8Array(0);
+  if (encryptedData.byteLength === 0) {
+    return null;
+  }
+  const decryptedData = await decryptData(encryptedData, iv);
+  return JSON.parse(decryptedData);
+}
 
 export default function RegisterView() {
   const [username, setUsername] = useState("");
@@ -12,8 +24,16 @@ export default function RegisterView() {
   const [age, setAge] = useState(0);
   const [randomNumber, setRandomNumber] = useState(0);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [didError, setDidError] = useState("");
+
+  const [userData, setUserData] = useState<any>({});
+
+  useEffect(() => {
+    async function fetchData() {
+      const decryptedUserData = await decryptUserData();
+      setUserData(decryptedUserData);
+    }
+    fetchData();
+  }, []);
 
   const handleUsernameChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setUsername(event.target.value);
@@ -41,9 +61,7 @@ export default function RegisterView() {
   };
 
   const checkEmailExisting = (email: string) => {
-    // Check if email already exists in userData stored in localStorage
-    const userData = JSON.parse(localStorage.getItem('userData') || 'null');
-  
+ 
     if (userData && userData.email === email) {
       alert('L\'email fornita esiste già. Per favore, usane un\'altra.');
       return true;
@@ -53,9 +71,7 @@ export default function RegisterView() {
   };
   
   const checkDidExisting = (did: string) => {
-    // Check if DID already exists in userData stored in localStorage
-    const userData = JSON.parse(localStorage.getItem('userData') || 'null');
-  
+ 
     if (userData && userData.did === did) {
       alert('Il DID fornito esiste già. Per favore, usane un altro.');
       return true;
@@ -65,31 +81,25 @@ export default function RegisterView() {
   };
 
   const handleVerificationSubmit = async () => {
-    // Check if email and DID already exist
-
     const isEmailExisting = checkEmailExisting(email);
     const isDidExisting = checkDidExisting(did);
 
     if (isEmailExisting) {
-      setEmailError("Email already exists");
+      alert('L\'email fornita esiste già. Per favore, usane un\'altra.');
       return;
-    } else {
-      setEmailError("");
-    }
+    } 
 
     if (isDidExisting) {
-      setDidError("DID already exists");
+      alert('Il DID fornito esiste già. Per favore, usane un altro.');
       return;
-    } else {
-      setDidError("");
-    }
+    } 
 
     // Meccanismo challenge-response di registrazione e login per non dipendere da piattaforme esterne
     // (es. Metamask) che sono stato costretto a dover implementare per poi sentirmi dire di non doverlo fare
 
     // Connessione a Web3 e al contratto
     const web3 = new Web3('http://localhost:8545');
-    const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+    const contractAddress = '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F'
     const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
 
     // Prendo l'account dell'utente
@@ -116,11 +126,6 @@ export default function RegisterView() {
       "signatureValue": signature,
     };
 
-    // Recupero il didUrl da verificationMethod e lo uso per verificare la firma associata all'account X
-    
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const didUrl = proof.verificationMethod;
-
     // Chiamo lo smart contract per verifica
     const verification = await contract.methods.getAuthentication(didverifiable).call();
 
@@ -132,8 +137,14 @@ export default function RegisterView() {
     // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
     
     if (recovered === verification[5]) {
-    const userData = { username,email,dateOfBirth,did,age};
-        localStorage.setItem('userData', JSON.stringify(userData));
+        const userData = {username,email,dateOfBirth,did,age};
+
+        // Encrypt the userData object
+        const encryptedUserData = await encryptData(JSON.stringify(userData));
+
+        // Store the encrypted data in localStorage
+        localStorage.setItem("encryptedUserData", JSON.stringify(encryptedUserData));
+        
         setShowVerificationModal(false);
         alert('Registrazione avvenuta con successo!');
     } else {
@@ -149,7 +160,7 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
   event.preventDefault();
 
   if (!username || !email || !dateOfBirth || !did) {
-    alert("Per favore, riempi tutti i campi correttamente");
+    alert("Per favore, inserisci tutti i campi.");
     return;
   }
 
@@ -159,12 +170,6 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
   const randomNumber = Math.floor(Math.random() * 1000000) + 1;
   setRandomNumber(randomNumber);
 
-  setUsername("");
-  setEmail("");
-  setDateOfBirth("");
-  setDid("");
-  setEmailError("");
-  setDidError("");
 
   setShowVerificationModal(true);
 };
@@ -195,11 +200,6 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
             onChange={handleEmailChange}
             required
           />
-          {emailError && (
-            <span id="emailError" className="error-message">
-              {emailError}
-            </span>
-          )}
         </div>
 
         <div className="form-group">
@@ -224,11 +224,6 @@ const handleSubmit = (event: { preventDefault: () => void; }) => {
             onChange={handleDidChange}
             required
           />
-          {didError && (
-            <span id="didError" className="error-message">
-              {didError}
-            </span>
-          )}
         </div>
 
         <button type="submit" className="btn-primary btn-register">

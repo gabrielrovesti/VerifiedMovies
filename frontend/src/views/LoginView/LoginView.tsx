@@ -1,10 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./LoginView.css";
 import SelfSovereignIdentity from "../../contracts/SelfSovereignIdentity.json";
 import Web3 from "web3";
 import { AbiItem } from 'web3-utils';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { decryptData } from "../../utils/Safe";
+
+async function decryptUserData() {
+  const encryptedUserData = JSON.parse(localStorage.getItem("encryptedUserData") || "{}");
+  const encryptedData = new Uint8Array(encryptedUserData.encryptedData);
+  const iv = encryptedUserData.iv ? new Uint8Array(encryptedUserData.iv) : new Uint8Array(0);
+  if (encryptedData.byteLength === 0) {
+    return null;
+  }
+  const decryptedData = await decryptData(encryptedData, iv);
+  return JSON.parse(decryptedData);
+}
 
 export default function LoginView() {
 
@@ -13,34 +25,41 @@ export default function LoginView() {
   const [randomNumber, setRandomNumber] = useState(0);
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  
+  const [userData, setUserData] = useState<any>({});
 
+  useEffect(() => {
+    async function fetchData() {
+      const decryptedUserData = await decryptUserData();
+      setUserData(decryptedUserData);
+    }
+
+    fetchData();
+  }, []);
+  
   const handleLogin = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
 
-    // Generate random number for verification
     const randomNumber = Math.floor(Math.random() * 1000000) + 1;
     setRandomNumber(randomNumber);
     setDid("");
 
-    // Show verification modal
     setShowVerificationModal(true);
   };
 
   const handleVerificationSubmit = async () => {
 
-    // Connessione a Web3 e al contratto
     const web3 = new Web3('http://localhost:8545');
-    const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+    const contractAddress = '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F'
     const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
   
-    // Prendo l'account dell'utente
     const accounts = await web3.eth.getAccounts();
     
-    // Firmo il messaggio
     const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
-  
+
     const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
-  
+    const didverifiable = userDid + "#key-1"; // DID + #key-1 because magically Alessio's contract wants it like this according to standards
+
     // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
     // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
     const proof = {
@@ -54,20 +73,15 @@ export default function LoginView() {
       "signatureValue": signature,
     };
   
-    //Chiamo lo smart contract per verifica
-    
-    const verification = await contract.methods.getAuthentication("did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266#key-1").call();
-  
-    // Controllo con recover di Web3 se corrispondono il numero di prima, come signature il proof (non prefissato di suo)
+    //Calling the contract method to verify the proof
+    const verification = await contract.methods.getAuthentication(didverifiable).call();
+
+    // Checking if the proof is verified
     // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
   
     const recovered = await web3.eth.accounts.recover(randomNumber.toString(), proof.signatureValue);
-  
-    // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
-  
-    if (recovered === verification[5]) {
-        localStorage.setItem("userIsLoggedIn", "true");
-        localStorage.setItem('loggedDID', userDid);
+
+    if (recovered === verification[5]) { 
         setUser({ did: userDid });
         setShowVerificationModal(false);
         navigate('/movies');
@@ -112,6 +126,12 @@ export default function LoginView() {
           </div>
         </div>
       )}
+        {userData && Object.keys(userData).length > 0 && (
+            <div>
+              <h3>User Data:</h3>
+              <p>{JSON.stringify(userData)}</p>
+            </div>
+          )}
     </div>
   );
   
