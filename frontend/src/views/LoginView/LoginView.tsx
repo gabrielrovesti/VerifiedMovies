@@ -50,7 +50,7 @@ export default function LoginView() {
   const handleVerificationSubmit = async () => {
 
     const web3 = new Web3('http://localhost:8545');
-    const contractAddress = '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F'
+    const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
     const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
   
     const accounts = await web3.eth.getAccounts();
@@ -116,7 +116,7 @@ export default function LoginView() {
       {showVerificationModal && (
         <div className="modal">
           <div className="modal-content">
-            <h2>Dimostra che sei tu.</h2>
+            <h2>Conferma la tua identità.</h2>
             <p>Questo è il tuo numero:</p>
             <h1>{randomNumber}</h1>
             <div className="modal-buttons">

@@ -133,7 +133,7 @@ export default function MoviesView() {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       const web3 = new Web3('http://localhost:8545');
-      const contractAddress = '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F'
+      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
       const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
       const accounts = await web3.eth.getAccounts();
       const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
@@ -196,14 +196,13 @@ export default function MoviesView() {
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const web3 = new Web3('http://localhost:8545');
-      const contractAddress = '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F'
+      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
       const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
 
       const accounts = await web3.eth.getAccounts();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const issuer = await contract.methods.createDid().send({ from: accounts[4] }); //here we do use one of the issuers account resolving then the chain below
       const issuerDid = await contract.methods.createDid().call({ from: accounts[4] });
-
 
       // Generate a private key for the issuer
       const privateKey = new BN(1373628729, 16); 
@@ -422,7 +421,7 @@ export default function MoviesView() {
       await new Promise(resolve => setTimeout(resolve, 2000));
         
       const web3 = new Web3('http://localhost:8545');
-      const contractAddress = '0x7a2088a1bFc9d81c55368AE168C2C02570cB814F';
+      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
       const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
     
       const resolutionResult = await contract.methods.resolve(issuerDid).call();
