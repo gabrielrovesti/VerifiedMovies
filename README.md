@@ -24,7 +24,7 @@ used by Bitcoin as the underlying elliptic curve for the signature scheme
 - It also has a challenge-response mechanism based on DIDs used in login/registration; we're not using MetaMask to not depend on external clients (requirement from Alessio, then he changed his mind after a week of struggles, I kept it anyway)
 - The project is a prototype for a movie platform that allows users to book movies only if the user is X years old:
 he presents a Verifiable Credential (VC), wrapped into a Verifiable Presentation (VP) to the platform without sharing any personal data with CL Signature that assures Zero Knowledge Proof.
-- It then  verifies the whole process and if the credential was issued by a specific issuer, which is the last node
+- It then verifies the whole process and if the credential was issued by a specific issuer, which is the last node
 of an ipothetic chain of trust, which is the only one that can issue the credential, and if the credential is still valid (not expired), then the user can book the movie.
 - The user can also share the movie, leave a rating, see the all ratings and handle its profile.
 - Because I had to make everything myself, forgive the code state, but for a Bachelor's Degree Thesis, it's more than enough.

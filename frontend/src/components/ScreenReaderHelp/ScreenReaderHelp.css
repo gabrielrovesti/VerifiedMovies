@@ -8,9 +8,9 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-  }
+}
     
-  .screen-reader-help {
+.screen-reader-help {
     position: fixed;
     top: 0;
     left: 0;
@@ -19,5 +19,5 @@
     color: #ffffff;
     font-size: 16px;
     z-index: 9999;
-  }
+}
   
