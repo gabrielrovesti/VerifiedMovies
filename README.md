@@ -12,7 +12,8 @@ Project for Sync Lab Stage Implementation made with:
 (one thing to note; Ethers gives A LOT of problems with TypeScript, so I had to use ONLY web3.js instead)
 - I was forced to implement the Self Sovereign Identity code by Alessio de Biasi, Computer Science Master Student at University of Ca' Foscari, Venice (SelfSovereignIdentity.sol) as a library in its implementation
 still, it's all DIY, cause he was not that helpful. He helped figure out some parts of the process,
-but it's that kind of person which seems nice but in reality, "just do it yourself, idiot".
+but it's that kind of person which seems nice but in reality, "just do it yourself".
+Yet, I managed to do everything by myself, as always.
 - Here "npm" was used everywhere; if you want to use "yarn" instead, you can, but you have to change the commands accordingly (don't mix the two, it will give you errors of any kind: I know).
 
 ## Features
