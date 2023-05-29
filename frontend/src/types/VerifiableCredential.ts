@@ -27,8 +27,9 @@ export type VerifiableCredential = VCDIVerifiableCredential | CompactJWT
 export type CompactJWT = string
 
 // Represents a Verifiable Credential protected by
-//   the Verifiable Credential Data Integrity 1.0 spec
+// the Verifiable Credential Data Integrity 1.0 spec
 // @see https://www.w3.org/TR/vc-data-integrity/
+
 export interface VCDIVerifiableCredential extends LinkedDataObject {
   // The first element of the @context array must be the VC context itself
   // Subsequent elements are either URLs for other contexts OR

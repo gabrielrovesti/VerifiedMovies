@@ -83,3 +83,5 @@ pre: cd into /frontend and install dependencies with 'npm install'
 
 - If the Hardhat accounts change, remember to change contract address and relative accounts inside code
 - Also, if you need a testing DID, you can use: ```did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266```
+- If for some weird reason, login does not work, you need to register and put
+a valid DID format for Alessio's contract, just as I did.

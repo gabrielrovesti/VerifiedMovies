@@ -101,15 +101,14 @@ export default function MoviesView() {
               setPermalinkCopied(true);
             })
             .catch((error) => {
-              console.error('Failed to copy permalink to clipboard:', error);
+              console.error('Errore nella copia del link negli appunti:', error);
             });
         })
         .catch((error) => {
-          console.error('Failed to copy movie details to clipboard:', error);
+          console.error('Errore nella copia del link negli appunti:', error);
         });
     }
   };
-  
   
   const openShareModal = (movie: Movie) => {
     setCurrentMovie(movie);
@@ -371,7 +370,7 @@ export default function MoviesView() {
           case 'G':
             return 0;
           default:
-            return 0; // Default age if rating is not recognized
+            return 0; // Default age if movie rating is not recognized
         }
       } else {
         return 0; // Default age if movie rating is null
@@ -428,7 +427,7 @@ export default function MoviesView() {
       const didDocument = resolutionResult;
 
       if (!didDocument && didDocument.id !== issuerDid) {
-        console.log("DID document not found");
+        setVerificationStatus('Errore: il DID non è stato trovato');
         return false;
       }
   

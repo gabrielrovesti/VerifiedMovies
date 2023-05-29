@@ -48,45 +48,50 @@ export default function LoginView() {
   };
 
   const handleVerificationSubmit = async () => {
-
-    const web3 = new Web3('http://localhost:8545');
-    const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
-    const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
-  
-    const accounts = await web3.eth.getAccounts();
+    try{
+      const web3 = new Web3('http://localhost:8545');
+      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+      const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
     
-    const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
+      const accounts = await web3.eth.getAccounts();
+      
+      const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
 
-    const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
-    const didverifiable = userDid + "#key-1"; // DID + #key-1 because magically Alessio's contract wants it like this according to standards
+      const userDid = await contract.methods.createDid().call({ from: accounts[0] }); 
+      const didverifiable = userDid + "#key-1"; // DID + #key-1 because magically Alessio's contract wants it like this according to standards
 
-    // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
-    // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
-    const proof = {
-      "@context": ["https://w3id.org/security/data-integrity/v1"],
-      "type": "DataIntegrityProof",
-      "cryptosuite": "ecdsa-2022",
-      "created": new Date().toISOString(),
-      "proofPurpose": "assertionMethod",
-      "verificationMethod": userDid,
-      "value": randomNumber.toString(),
-      "signatureValue": signature,
-    };
-  
-    //Calling the contract method to verify the proof
-    const verification = await contract.methods.getAuthentication(didverifiable).call();
+      // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
+      // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
+      const proof = {
+        "@context": ["https://w3id.org/security/data-integrity/v1"],
+        "type": "DataIntegrityProof",
+        "cryptosuite": "ecdsa-2022",
+        "created": new Date().toISOString(),
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": userDid,
+        "value": randomNumber.toString(),
+        "signatureValue": signature,
+      };
+    
+      //Calling the contract method to verify the proof
+      const verification = await contract.methods.getAuthentication(didverifiable).call();
 
-    // Checking if the proof is verified
-    // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
-  
-    const recovered = await web3.eth.accounts.recover(randomNumber.toString(), proof.signatureValue);
+      // Checking if the proof is verified
+      // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
+    
+      const recovered = await web3.eth.accounts.recover(randomNumber.toString(), proof.signatureValue);
 
-    if (recovered === verification[5]) { 
-        setUser({ did: userDid });
-        setShowVerificationModal(false);
-        navigate('/movies');
-    } else {
-        alert('La verifica non è andata a buon fine, si prega di riprovare.');
+      if (recovered === verification[5]) { 
+          setUser({ did: userDid });
+          sessionStorage.setItem("loggedIn", "true");
+          setShowVerificationModal(false);
+          navigate('/movies');
+      } else {
+          alert('La verifica non è andata a buon fine, si prega di riprovare.');
+      }
+    }
+    catch(error){
+      console.log(error);
     }
   };
 

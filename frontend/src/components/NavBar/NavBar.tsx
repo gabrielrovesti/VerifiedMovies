@@ -1,20 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import "./NavBar.css";
 import { useAuth } from "../../context/AuthContext";
-import logo from "../logo192.png";
+import logo from "../../img/logo192.png";
 import { useNavigate } from "react-router-dom";
 
 export default function NavBar() {
-  const { isAuthenticated, logout } = useAuth();
+  const auth = useAuth();
+  const { isAuthenticated = false, logout = () => {} } = auth || {};
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [logoutMessage, setLogoutMessage] = useState("");
 
   const navigate = useNavigate();
 
-  const handleLogoutClick = (event: { preventDefault: () => void; }) => {
+  const handleLogoutClick = (event: { preventDefault: () => void }) => {
     event.preventDefault();
     setShowLogoutModal(true);
     setLogoutMessage("Disconnessione in corso..");
@@ -26,12 +27,6 @@ export default function NavBar() {
       navigate("/");
     }, 2000);
   };
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setMobileMenuOpen(false);
-    }
-  }, [isAuthenticated]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -50,7 +45,7 @@ export default function NavBar() {
       </div>
       <div className={`navbar-menu ${mobileMenuOpen ? "active" : ""}`}>
         <ul>
-          {!isAuthenticated && (
+          {!isAuthenticated ? (
             <>
               <li className="navbar-menu-item">
                 <Link to="/" onClick={toggleMobileMenu}>
@@ -68,8 +63,7 @@ export default function NavBar() {
                 </Link>
               </li>
             </>
-          )}
-          {isAuthenticated && (
+          ) : (
             <>
               <li className="navbar-menu-item">
                 <Link to="/movies" onClick={toggleMobileMenu}>

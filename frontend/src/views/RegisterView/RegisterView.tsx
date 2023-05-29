@@ -94,62 +94,67 @@ export default function RegisterView() {
       return;
     } 
 
-    // Meccanismo challenge-response di registrazione e login per non dipendere da piattaforme esterne
-    // (es. Metamask) che sono stato costretto a dover implementare per poi sentirmi dire di non doverlo fare
+    try{
+      // Meccanismo challenge-response di registrazione e login per non dipendere da piattaforme esterne
+      // (es. Metamask) che sono stato costretto a dover implementare per poi sentirmi dire di non doverlo fare
 
-    // Connessione a Web3 e al contratto
-    const web3 = new Web3('http://localhost:8545');
-    const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
-    const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
+      // Connessione a Web3 e al contratto
+      const web3 = new Web3('http://localhost:8545');
+      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+      const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
 
-    // Prendo l'account dell'utente
-    const accounts = await web3.eth.getAccounts();
-    
-    // Firmo il messaggio
-    const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
+      // Prendo l'account dell'utente
+      const accounts = await web3.eth.getAccounts();
+      
+      // Firmo il messaggio
+      const signature = await web3.eth.sign(randomNumber.toString(), accounts[0]);
 
-    // Sending the DID from account X to the contract - creating it, calling it and then sending it
-    const userDid = await contract.methods.createDid().send({ from: accounts[0] }); 
+      // Sending the DID from account X to the contract - creating it, calling it and then sending it
+      const userDid = await contract.methods.createDid().send({ from: accounts[0] }); 
 
-    const did_correct = await contract.methods.createDid().call({ from: accounts[0] }); 
-    const didverifiable = did_correct + "#key-1";
+      const did_correct = await contract.methods.createDid().call({ from: accounts[0] }); 
+      const didverifiable = did_correct + "#key-1";
 
-    // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
-    // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
-    const proof = {
-      "@context": "https://www.w3.org/2018/credentials/v1",
-      "type": "DataIntegrityProof",
-      "created": new Date().toISOString(),
-      "proofPurpose": "authentication",
-      "verificationMethod": userDid,
-      "value": randomNumber.toString(),
-      "signatureValue": signature,
-    };
+      // Genero la prova contenente il metodo di verifica, un valore di proof e il proof purpose
+      // Link: https://w3c.github.io/vc-data-integrity/#example-a-dataintegrityproof-example-using-a-nist-ecdsa-2022-cryptosuite
+      const proof = {
+        "@context": "https://www.w3.org/2018/credentials/v1",
+        "type": "DataIntegrityProof",
+        "created": new Date().toISOString(),
+        "proofPurpose": "authentication",
+        "verificationMethod": userDid,
+        "value": randomNumber.toString(),
+        "signatureValue": signature,
+      };
 
-    // Chiamo lo smart contract per verifica
-    const verification = await contract.methods.getAuthentication(didverifiable).call();
+      // Chiamo lo smart contract per verifica
+      const verification = await contract.methods.getAuthentication(didverifiable).call();
 
-    // Controllo con recover di Web3 se corrispondono il numero di prima, come signature il proof (non prefissato di suo)
-    // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
+      // Controllo con recover di Web3 se corrispondono il numero di prima, come signature il proof (non prefissato di suo)
+      // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
 
-    const recovered = await web3.eth.accounts.recover(randomNumber.toString(), proof.signatureValue);
+      const recovered = await web3.eth.accounts.recover(randomNumber.toString(), proof.signatureValue);
 
-    // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
-    
-    if (recovered === verification[5]) {
-        const userData = {username,email,dateOfBirth,did,age};
+      // Se corrisponde il controllo tra "recover" e l'account che ha inizializzato la verifica, allora è verificato
+      
+      if (recovered === verification[5]) {
+          const userData = {username,email,dateOfBirth,did,age};
 
-        // Encrypt the userData object
-        const encryptedUserData = await encryptData(JSON.stringify(userData));
+          // Encrypt the userData object
+          const encryptedUserData = await encryptData(JSON.stringify(userData));
 
-        // Store the encrypted data in localStorage
-        localStorage.setItem("encryptedUserData", JSON.stringify(encryptedUserData));
-        
-        setShowVerificationModal(false);
-        alert('Registrazione avvenuta con successo!');
-    } else {
-        alert('La verifica non è andata a buon fine, si prega di riprovare.');
+          // Store the encrypted data in localStorage
+          localStorage.setItem("encryptedUserData", JSON.stringify(encryptedUserData));
+          
+          setShowVerificationModal(false);
+          alert('Registrazione avvenuta con successo!');
+      } else {
+          alert('La verifica non è andata a buon fine, si prega di riprovare.');
+      }
     }
+    catch(error){
+      console.log(error);
+    }    
 };
 
 const handleVerificationClose = () => {
