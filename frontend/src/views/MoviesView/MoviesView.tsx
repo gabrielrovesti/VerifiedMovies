@@ -167,7 +167,6 @@ export default function MoviesView() {
       }
 
     } catch (error) {
-      console.log("Errore durante la verifica: ", error);
       setVerificationStatus('Verifica fallita: si consiglia di riprovare più tardi.');
       setShowLoading(false);
       await new Promise(resolve => setTimeout(resolve, 2000));

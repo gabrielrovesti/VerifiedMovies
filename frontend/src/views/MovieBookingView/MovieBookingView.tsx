@@ -16,24 +16,24 @@ export default function MovieBookingView() {
   const movie = movies.find((movie) => movie.id === id);
 
   const handleBooking = (e: { preventDefault: () => void; }) => {
-    e.preventDefault();
+    try{
+      e.preventDefault();
   
-    const movieTitle = movie?.title;
-  
-    const isBookingAllowed = validateBooking(bookingDate, bookingTime, numTickets, reservedSeats);
-    
-    if (isBookingAllowed) {
-      const existingBookings = JSON.parse(localStorage.getItem("bookingData") || "[]");
-  
-      const newBooking = { bookingDate, bookingTime, numTickets, reservedSeats, movieTitle };
-  
-      const updatedBookings = [...existingBookings, newBooking];
-  
-      localStorage.setItem("bookingData", JSON.stringify(updatedBookings));
-  
-      setBookingConfirmed(true);
-    } else {
-      alert("Prenotazione non disponibile per le opzioni selezionate.");
+      const movieTitle = movie?.title;
+      const isBookingAllowed = validateBooking(bookingDate, bookingTime, numTickets, reservedSeats);
+      
+      if (isBookingAllowed) {
+        const existingBookings = JSON.parse(localStorage.getItem("bookingData") || "[]");
+        const newBooking = { bookingDate, bookingTime, numTickets, reservedSeats, movieTitle };
+        const updatedBookings = [...existingBookings, newBooking];
+        localStorage.setItem("bookingData", JSON.stringify(updatedBookings));
+        setBookingConfirmed(true);
+      } else {
+        alert("Prenotazione non disponibile per le opzioni selezionate.");
+      }
+    }
+    catch(error){
+      console.log(error);
     }
   };
   

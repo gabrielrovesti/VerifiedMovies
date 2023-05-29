@@ -1,17 +1,20 @@
-import React from 'react';
-import { Route, Navigate, RouteProps, useLocation } from 'react-router-dom';
+import React, { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-export default function PrivateRoute({
-  element: ElementComponent,
-  ...rest
-}: { element: React.ReactNode } & RouteProps) {
-  const { isAuthenticated } = useAuth();
-  const location = useLocation();
+interface PrivateRouteProps {
+  children: ReactNode;
+  redirectTo: string;
+}
 
-  return isAuthenticated ? (
-    <Route {...rest} element={ElementComponent} />
-  ) : (
-    <Navigate to="/login" replace state={{ from: location.pathname }} />
-  );
+export default function PrivateRoute({ children, redirectTo }: PrivateRouteProps) {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  if (!isAuthenticated) {
+    navigate(redirectTo);
+    return null; 
+  }
+
+  return <>{children}</>;
 }

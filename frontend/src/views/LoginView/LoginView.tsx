@@ -85,7 +85,7 @@ export default function LoginView() {
           setUser({ did: userDid });
           sessionStorage.setItem("loggedIn", "true");
           setShowVerificationModal(false);
-          navigate('/movies');
+          navigate("/movies");
       } else {
           alert('La verifica non è andata a buon fine, si prega di riprovare.');
       }

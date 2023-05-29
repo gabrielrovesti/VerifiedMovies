@@ -12,6 +12,7 @@ import MovieBookingView from '../views/MovieBookingView/MovieBookingView';
 import BookingListView from '../views/BookingListView/BookingListView';
 import { AuthProvider } from '../context/AuthContext';
 import ErrorView from '../views/ErrorView/ErrorView';
+import PrivateRoute from '../components/PrivateRoute/PrivateRoute';
 
 export default function App() {
   return (
@@ -22,10 +23,38 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginView />} />
           <Route path="/register" element={<RegisterView />} />
-          <Route path="/movies" element={<MoviesView />} />
-          <Route path="/account" element={<AccountView />} />
-          <Route path="/movies/:id/book" element={<MovieBookingView />} />
-          <Route path="/bookings" element={<BookingListView />} />
+          <Route
+            path="/movies"
+            element={
+              <PrivateRoute redirectTo="/login">
+                <MoviesView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <PrivateRoute redirectTo="/login">
+                <AccountView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/movies/:id/book"
+            element={
+              <PrivateRoute redirectTo="/login">
+                <MovieBookingView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bookings"
+            element={
+              <PrivateRoute redirectTo="/login">
+                <BookingListView />
+              </PrivateRoute>
+            }
+          />
           <Route path="*" element={<ErrorView />} />
         </Routes>
         <Footer />
