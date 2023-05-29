@@ -19,9 +19,8 @@ async function decryptUserData() {
 }
 
 export default function AccountView() {
-  const { user, setUser } = useAuth();
+  const {user, setUser} = useAuth();
   const navigate = useNavigate();
-
   const [userData, setUserData] = useState<any>({});
 
   useEffect(() => {
@@ -65,6 +64,9 @@ export default function AccountView() {
 
     // Perform other necessary cleanup tasks, such as clearing local storage or session data
     setUser(null);
+    localStorage.removeItem('userData');
+    localStorage.removeItem('encryptedUserData');
+    localStorage.setItem('loggedIn', 'false');
 
     // Show a confirmation message
     alert('Il tuo account è stato cancellato con successo!');
