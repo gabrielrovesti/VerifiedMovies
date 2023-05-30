@@ -1,54 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./AccountView.css";
 import { useAuth } from "../../context/AuthContext";
 import Web3 from "web3";
 import SelfSovereignIdentity from "../../contracts/SelfSovereignIdentity.json";
 import { AbiItem } from 'web3-utils';
 import { useNavigate } from "react-router-dom";
-import { decryptData } from "../../utils/Safe";
-
-async function decryptUserData() {
-  const encryptedUserData = JSON.parse(localStorage.getItem("encryptedUserData") || "{}");
-  const encryptedData = new Uint8Array(encryptedUserData.encryptedData);
-  const iv = encryptedUserData.iv ? new Uint8Array(encryptedUserData.iv) : new Uint8Array(0);
-  if (encryptedData.byteLength === 0) {
-    return null;
-  }
-  const decryptedData = await decryptData(encryptedData, iv);
-  return JSON.parse(decryptedData);
-}
+import Notification from "../../components/Notification/Notification";
 
 export default function AccountView() {
-  const {user, setUser} = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
-  const [userData, setUserData] = useState<any>({});
+  const [userData, setUserData] = useState<any>(sessionStorage.getItem("userData") ? JSON.parse(sessionStorage.getItem("userData") || "") : {});
+  const [notification, setNotification] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      const decryptedUserData = await decryptUserData();
-      setUserData(decryptedUserData);
-    }
-
-    fetchData();
-  }, []);
-  
   const [username, setUsername] = useState(userData?.username || '');
   const [email, setEmail] = useState(userData?.email || '');
   const [dateOfBirth, setDateOfBirth] = useState(userData?.dateOfBirth || '');
-  
+
   const handleEditProfile = () => {
     const updatedUserData = {
       username,
       email,
       dateOfBirth,
-      did: user?.did || "", 
+      did: user?.did || "",
     };
 
-    localStorage.setItem("userData", JSON.stringify(updatedUserData));
-    setUser(updatedUserData);
+    sessionStorage.setItem("userData", JSON.stringify(updatedUserData));
+    setUserData(updatedUserData);
 
-    alert('Dati modificati con successo!');
-
+    setNotification('Dati modificati con successo!');
     navigate('/account');
   };
 
@@ -59,20 +39,19 @@ export default function AccountView() {
 
     const accounts = await web3.eth.getAccounts();
 
-    // Deactivate the user's DID document
     await contract.methods.deactivate().send({ from: accounts[0] });
 
-    // Perform other necessary cleanup tasks, such as clearing local storage or session data
     setUser(null);
-    localStorage.removeItem('userData');
-    localStorage.removeItem('encryptedUserData');
-    localStorage.setItem('loggedIn', 'false');
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('loggedIn');
 
-    // Show a confirmation message
-    alert('Il tuo account è stato cancellato con successo!');
+    setNotification('Il tuo account è stato cancellato con successo!');
 
-    // Redirect the user to the login page
-    navigate('/login');
+    navigate('/');
+  };
+
+  const closeNotification = () => {
+    setNotification(null);
   };
 
   return (
@@ -121,6 +100,9 @@ export default function AccountView() {
           </button>
         </div>
       </form>
+      {notification && (
+        <Notification message={notification} onClose={closeNotification} />
+      )}
     </div>
   );
 }

@@ -46,7 +46,14 @@ export default function MoviesView() {
   const [movieDetailsCopied, setMovieDetailsCopied] = useState(false);
   const [permalinkCopied, setPermalinkCopied] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
-
+  
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [userData, setUserData] = useState<any>(
+    sessionStorage.getItem('userData')
+      ? JSON.parse(sessionStorage.getItem('userData') || '')
+      : { age: null }
+  );
+  
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
@@ -150,13 +157,13 @@ export default function MoviesView() {
           setVerificationStatus('Verifica avvenuta correttamente!');
           await new Promise(resolve => setTimeout(resolve, 2000));
           navigate(`/movies/${movie.id}/book`); 
-
         } else {
           setIsVerified(false);
           setShowLoading(false);
-          setVerificationStatus('Verifica fallita: firma non valida.');
+          setVerificationStatus('Verifica fallita: l\'età inserita non ti permette di proseguire.');
           await new Promise(resolve => setTimeout(resolve, 2000));
           setShowVerificationModal(false);
+          setVerificationStatus('');
         }
       } 
       else {
@@ -164,6 +171,7 @@ export default function MoviesView() {
         setVerificationStatus('Verifica fallita: DID non esistente.'); 
         await new Promise(resolve => setTimeout(resolve, 2000));
         setShowVerificationModal(false);
+        setVerificationStatus('');
       }
 
     } catch (error) {
@@ -171,6 +179,7 @@ export default function MoviesView() {
       setShowLoading(false);
       await new Promise(resolve => setTimeout(resolve, 2000));
       setShowVerificationModal(false);
+      setVerificationStatus('');
     }
   }
   
@@ -285,9 +294,9 @@ export default function MoviesView() {
         issuanceDate: new Date().toISOString(),
         credentialSubject: {
           id: userDid,
-          age: 25,
+          age: userData?.age || null, // Set the age from userData, or default to null if it doesn't exist
           type: 'VerifiableCredential',
-        } as CredentialSubject,
+        } as CredentialSubject,        
         proof: {
           type: "CLSignature2019", // used for anonymous credentials and ZKP for second layer solutions
           issuerData: issuerDid, // the issuer's DID

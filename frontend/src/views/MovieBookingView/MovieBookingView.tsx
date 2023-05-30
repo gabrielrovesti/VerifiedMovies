@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import movies from '../../data/TestingData';
 import { useNavigate } from "react-router-dom";
 import "./MovieBookingView.css";
+import Notification from "../../components/Notification/Notification";
 
 export default function MovieBookingView() {
   const { id } = useParams();
@@ -11,32 +12,33 @@ export default function MovieBookingView() {
   const [numTickets, setNumTickets] = useState(0);
   const [reservedSeats, setReservedSeats] = useState("");
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const movie = movies.find((movie) => movie.id === id);
 
   const handleBooking = (e: { preventDefault: () => void; }) => {
-    try{
+    try {
       e.preventDefault();
-  
+
       const movieTitle = movie?.title;
       const isBookingAllowed = validateBooking(bookingDate, bookingTime, numTickets, reservedSeats);
-      
+
       if (isBookingAllowed) {
         const existingBookings = JSON.parse(localStorage.getItem("bookingData") || "[]");
         const newBooking = { bookingDate, bookingTime, numTickets, reservedSeats, movieTitle };
         const updatedBookings = [...existingBookings, newBooking];
         localStorage.setItem("bookingData", JSON.stringify(updatedBookings));
         setBookingConfirmed(true);
+        setNotification("Prenotazione avvenuta con successo!");
       } else {
-        alert("Prenotazione non disponibile per le opzioni selezionate.");
+        setNotification("Prenotazione non disponibile per le opzioni selezionate.");
       }
-    }
-    catch(error){
+    } catch (error) {
       console.log(error);
     }
   };
-  
+
   const closeModal = () => {
     setBookingConfirmed(false);
   };
@@ -60,6 +62,10 @@ export default function MovieBookingView() {
   const allowedDates = ["25-05", "26-05", "27-05"];
   const allowedTimes = ["10:00", "14:00", "18:00"];
 
+  const closeNotification = () => {
+    setNotification(null);
+  };
+
   return (
     <div className="movie-container">
       <h2>
@@ -77,12 +83,12 @@ export default function MovieBookingView() {
             <p>Orario: {bookingTime}</p>
             <p>Numero di biglietti: {numTickets}</p>
             <p>Posti riservati: {reservedSeats}</p>
-            
+
             <button className="btn-primary" onClick={closeModal}>Chiudi</button>
             {bookingConfirmed && (
-                <button className="btn-primary" onClick={viewAllBookings}>
+              <button className="btn-primary" onClick={viewAllBookings}>
                 Tutte le prenotazioni
-                </button>
+              </button>
             )}
           </div>
         </div>
@@ -148,6 +154,10 @@ export default function MovieBookingView() {
             Prenota
           </button>
         </form>
+      )}
+
+      {notification && (
+        <Notification message={notification} onClose={closeNotification} />
       )}
     </div>
   );

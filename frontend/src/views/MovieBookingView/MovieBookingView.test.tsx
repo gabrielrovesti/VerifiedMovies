@@ -61,36 +61,33 @@ describe('MovieBookingView', () => {
       const submitButton = screen.getByRole('button', { name: 'Prenota' });
       fireEvent.click(submitButton);
   
-      const successModal = screen.getByText('Prenotazione avvenuta con successo!');
-      expect(successModal).toBeInTheDocument();
-  
       expect(screen.getByText('Data: 25-05')).toBeInTheDocument();
       expect(screen.getByText('Orario: 10:00')).toBeInTheDocument();
       expect(screen.getByText('Numero di biglietti: 2')).toBeInTheDocument();
   
-      const closeModalButton = screen.getByRole('button', { name: 'Chiudi' });
-      fireEvent.click(closeModalButton);
-  
-      expect(screen.queryByText('Prenotazione avvenuta con successo!')).not.toBeInTheDocument();
       expect(mockNavigate).not.toHaveBeenCalled();
     });
   
-    it('should display an alert for an invalid booking', () => {
+    it('should display an error notification for an invalid booking', () => {
       render(<MemoryRouter><MovieBookingView /></MemoryRouter>);
-  
+    
       const bookingDateSelect = screen.getByLabelText('Data di prenotazione:');
       fireEvent.change(bookingDateSelect, { target: { value: '28-05' } });
-  
+    
       const bookingTimeSelect = screen.getByLabelText('Ora di prenotazione:');
       fireEvent.change(bookingTimeSelect, { target: { value: '20:00' } });
-  
+    
       const numTicketsInput = screen.getByLabelText('Numero di biglietti:');
       fireEvent.change(numTicketsInput, { target: { value: '5' } });
-  
+    
       const reservedSeatsInput = screen.getByLabelText('Posti che vuoi riservare:');
       fireEvent.change(reservedSeatsInput, { target: { value: 'A1, A2, A3, A4, A5, A6, A7' } });
-  
+    
       const submitButton = screen.getByRole('button', { name: 'Prenota' });
       fireEvent.click(submitButton);
+    
+      const errorNotification = screen.getByText('Prenotazione non disponibile per le opzioni selezionate.');
+      expect(errorNotification).toBeInTheDocument();
     });
+    
 });

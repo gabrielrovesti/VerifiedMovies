@@ -12,7 +12,7 @@ export default function Footer() {
   return (
     <div className="footer-container">
       <div className="footer-content">
-        <p>VerifiedMovies - 2023. Progetto realizzato secondo la licenza <em>Apache</em>.</p>
+        <p>VerifiedMovies - G. Rovesti - 2023.</p>
         <a href="#" className="back-to-top sr-only" onClick={handleBackToTop}>
           Torna su
         </a>

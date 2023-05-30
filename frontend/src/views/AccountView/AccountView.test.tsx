@@ -16,7 +16,7 @@ jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
 }));
 
-const deactivateMock = jest.fn().mockReturnValue({ send: jest.fn() });
+const mockDeactivate = jest.fn().mockResolvedValue({ send: jest.fn() }) as jest.Mock;
 
 jest.mock('web3', () => {
   return jest.fn().mockImplementation(() => {
@@ -24,7 +24,7 @@ jest.mock('web3', () => {
       eth: {
         Contract: jest.fn().mockReturnValue({
           methods: {
-            deactivate: deactivateMock,
+            deactivate: mockDeactivate,
           },
         }),
         getAccounts: jest.fn().mockResolvedValue(['account1']),
@@ -34,7 +34,7 @@ jest.mock('web3', () => {
 });
 
 describe('AccountView', () => {
-  test.skip('renders the account form and handles profile update', () => {
+  test('renders the account form and handles profile update', () => {
 
     render(
       <MemoryRouter>
@@ -61,25 +61,27 @@ describe('AccountView', () => {
       did: 'userDid',
     });
 
-    expect(window.alert).toHaveBeenCalledWith('Dati modificati con successo!');
+    expect(screen.getByText('Dati modificati con successo!')).toBeInTheDocument();
   });
 
-  test.skip('renders the account form and handles account deletion', () => {
+  test('renders the account form and handles account deletion', async () => {
  
-     render(
-       <MemoryRouter>
-         <AuthProvider>
-           <AccountView />
-         </AuthProvider>
-       </MemoryRouter>
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <AccountView />
+        </AuthProvider>
+      </MemoryRouter>
     );
 
     const deleteAccountButton = screen.getByText('Cancella account');
     fireEvent.click(deleteAccountButton);
 
-    expect(deactivateMock).toHaveBeenCalled();
+    expect(mockDeactivate).toHaveBeenCalled();
     expect(useAuth().setUser).toHaveBeenCalledWith(null);
-    expect(window.alert).toHaveBeenCalledWith('Il tuo account è stato cancellato con successo!');
-    expect(useNavigate()).toHaveBeenCalledWith('/login');
+    expect(sessionStorage.removeItem).toHaveBeenCalledWith('userData');
+    expect(sessionStorage.removeItem).toHaveBeenCalledWith('loggedIn');
+    expect(screen.getByText('Il tuo account è stato cancellato con successo!')).toBeInTheDocument();
+    expect(useNavigate()).toHaveBeenCalledWith('/');
   });
 });
