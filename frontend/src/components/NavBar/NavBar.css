@@ -51,6 +51,18 @@
     cursor: pointer;
 }
 
+.navbar-menu-item a:visited {
+  font-size: 0.7em;
+  color: #FFEC80; /* Change this color to your desired color */
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-menu-item a:visited:hover {
+  color: #FF8A8A; /* Change this color for the visited link hover state */
+}
+
+
 .logout-modal {
   background-color: white;
   color: black;

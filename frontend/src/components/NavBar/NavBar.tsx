@@ -38,7 +38,7 @@ export default function NavBar() {
         <Link to="/">
           <img
             src={logo}
-            alt="Logo del sito VerifiedMovies: clicca qui per tornare alla pagina principale"
+            alt="Logo del sito: clicca qui per tornare alla pagina principale"
             className="logo-image"
           />
         </Link>

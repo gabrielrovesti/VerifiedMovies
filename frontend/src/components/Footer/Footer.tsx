@@ -12,7 +12,7 @@ export default function Footer() {
   return (
     <div className="footer-container">
       <div className="footer-content">
-        <p>VerifiedMovies - G. Rovesti - 2023.</p>
+        <p><span lang="en">VerifiedMovies</span> - Gabriel Rovesti - 2023.</p>
         <a href="#" className="back-to-top sr-only" onClick={handleBackToTop}>
           Torna su
         </a>
