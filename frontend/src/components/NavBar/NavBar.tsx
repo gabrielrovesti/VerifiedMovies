@@ -33,7 +33,7 @@ export default function NavBar() {
   };
 
   return (
-    <nav className="navbar-container">
+    <nav id="navbar" className="navbar-container">
       <div className="navbar-logo">
         <Link to="/">
           <img

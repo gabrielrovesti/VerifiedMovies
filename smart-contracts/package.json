@@ -2,8 +2,7 @@
   "scripts": {
     "testnet": "npx hardhat node",
     "deploy": "npx hardhat run --network localhost scripts/deploy.ts",
-    "compile": "npx hardhat clean && npx hardhat compile",
-    "test": "npx hardhat test"
+    "compile": "npx hardhat clean && npx hardhat compile"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
