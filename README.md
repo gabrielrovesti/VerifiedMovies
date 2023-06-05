@@ -1,6 +1,6 @@
 # VerifiedMovies
 
-![GitHub Banner](https://user-images.githubusercontent.com/40567147/159485872-7f63766a-3c91-48dc-aa37-fb5894232acc.png)
+![Logo](./frontend/src/img/logo.png)
 
 Project for Sync Lab Stage Implementation made with:
 :pager: React + Typescript
@@ -78,6 +78,7 @@ pre: cd into ```/frontend``` and install dependencies with ```npm install```
 ##### Testing data
 
 - If the Hardhat accounts change, remember to change contract address and relative accounts inside code
-- Also, if you need a testing DID, you can use: ```did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266```
+- Also, if you need a testing DID, you can use: ```did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266``` (if contract is deployed on address ```0x5FbDB2315678afecb367f032d93F642f64180aa3```)
 - At startup, login probably won't work, cause there are no users in the database, so you have to register one and then logging in; to proper handle the checks inside, remember to use my DID, which is the one above.
 It should work anyway with others, but this way is compliant to both standards and the smart contract itself
+
