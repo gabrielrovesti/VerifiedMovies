@@ -1,41 +1,6 @@
-/* Alternative Ethers.js deployment script working with hardhat
-
-import { ethers } from 'ethers'
-import * as fs from 'fs'
-
-const SSI_ARTIFACTS_PATH = 'artifacts/contracts/SelfSovereignIdentity.sol/SelfSovereignIdentity.json'
-
-async function main () {
-  const provider = new ethers.providers.JsonRpcProvider()
-  const signer = provider.getSigner()
-
-  const SelfSovereignIdentityArtifact = JSON.parse(
-    fs.readFileSync(SSI_ARTIFACTS_PATH, 'utf8')
-  )
-
-  const SelfSovereignIdentityAbi = SelfSovereignIdentityArtifact.abi
-  const SelfSovereignIdentityBytecode = SelfSovereignIdentityArtifact.bytecode
-
-  const ssiFactory = new ethers.ContractFactory(
-    SelfSovereignIdentityAbi,
-    SelfSovereignIdentityBytecode,
-    signer
-  )
-  const ssiContract = await ssiFactory.deploy()
-  await ssiContract.deployed()
-
-  console.log('SelfSovereignIdentity deployed to:', ssiContract.address)
-}
-
-main().catch((error) => {
-  console.error(error)
-  process.exitCode = 1
-})
-
-*/
-
 import Web3 from 'web3'
 import SelfSovereignIdentity from '../artifacts/contracts/SelfSovereignIdentity.sol/SelfSovereignIdentity.json'
+import ChainOfTrustDidSsi from '../artifacts/contracts/ChainOfTrustDidSsi.sol/ChainOfTrustDidSsi.json'
 import { AbiItem } from 'web3-utils'
 
 async function main () {
@@ -53,7 +18,18 @@ async function main () {
     gasPrice: '30000000000000'
   })
 
+  const ChainOfTrustDidSsiContract = new web3.eth.Contract(ChainOfTrustDidSsi.abi as AbiItem[])
+  const chainOfTrustDidSsiContractInstance = await ChainOfTrustDidSsiContract.deploy({
+    data: ChainOfTrustDidSsi.bytecode,
+    arguments: []
+  }).send({
+    from: accounts[0],
+    gas: 6000000,
+    gasPrice: '30000000000000'
+  })
+
   console.log('SelfSovereignIdentity deployed to:', ssiContractInstance.options.address)
+  console.log('ChainOfTrustDidSsi deployed to:', chainOfTrustDidSsiContractInstance.options.address)
 }
 
 main().catch((error) => {

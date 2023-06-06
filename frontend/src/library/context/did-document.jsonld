@@ -1,0 +1,26 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "TrustCertification": {
+            "@id": "https://www.ssicot.com/did-document/#TrustCertification",
+            "issuer": "https://www.w3.org/2018/credentials#issuer",
+            "issuanceDate": "https://www.w3.org/2018/credentials#issuanceDate",
+            "expirationDate": "https://www.w3.org/2018/credentials#expirationDate",
+            "certificationStatus": {
+                "@id": "https://www.ssicot.com/did-document/#certificationStatus",
+                "@type": "xsd:string"
+            },
+            "credentialStatus": "https://www.w3.org/2018/credentials#credentialStatus",
+            "proof": {
+                "@id": "https://w3id.org/security#proof",
+                "@type": "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020#EcdsaSecp256k1RecoverySignature2020"
+            }
+        },
+        "trustCertification": {
+            "@id": "https://www.ssicot.com/did-document/#trustCertification",
+            "@type": "TrustCertification"
+        }
+    }
+}

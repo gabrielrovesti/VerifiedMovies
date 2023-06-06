@@ -1,0 +1,14 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "RevocationList2023": {
+            "@id": "https://www.ssicot.com/RevocationList2023/#"
+        },
+        "revoked": {
+            "@id": "https://www.ssicot.com/RevocationList2023/#revoked",
+            "@type": "xsd:boolean"
+        }
+    }
+}

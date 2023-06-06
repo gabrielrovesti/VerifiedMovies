@@ -3,6 +3,7 @@ import App from './App/App';
 import ScreenReaderHelp from './components/ScreenReaderHelp/ScreenReaderHelp';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import React from 'react';
 
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement!);

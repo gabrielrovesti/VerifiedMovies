@@ -8,9 +8,7 @@ import Notification from "../../components/Notification/Notification";
 export default function RegisterView() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
   const [did, setDid] = useState("");
-  const [age, setAge] = useState(0);
   const [randomNumber, setRandomNumber] = useState(0);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
@@ -21,19 +19,6 @@ export default function RegisterView() {
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
-  };
-
-  const handleDateOfBirthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDateOfBirth(event.target.value);
-    const age = calculateAge(new Date(event.target.value));
-    setAge(age);
-  };
-
-  const calculateAge = (birthday: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - birthday.getTime();
-    const age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-    return age;
   };
 
   const handleDidChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,6 +96,10 @@ export default function RegisterView() {
       };
 
       // Chiamo lo smart contract per verifica
+
+      // Al posto di getAuthentication, userò resolveUrl che prende tutto il DID Url (DID + fragment, cioè l'hashtag e la chiave)
+      // Per creare una VC uso assertionMethod, l'authentication per autenticare l'utente
+
       const verification = await contract.methods.getAuthentication(didverifiable).call();
       // Controllo con recover di Web3 se corrispondono il numero di prima, come signature il proof (non prefissato di suo)
       // Link: https://web3js.readthedocs.io/en/v1.9.0/web3-eth-accounts.html#recover
@@ -121,7 +110,7 @@ export default function RegisterView() {
 
       // Registration code
       if (recovered === verification[5]) {
-        const userData = { username, email, dateOfBirth, did, age };
+        const userData = { username, email, did };
         sessionStorage.setItem("userData", JSON.stringify(userData));
 
         setShowVerificationModal(false);
@@ -142,13 +131,10 @@ export default function RegisterView() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!username || !email || !dateOfBirth || !did) {
+    if (!username || !email || !did) {
       setNotification("Per favore, inserisci tutti i campi.");
       return;
     }
-
-    const age = calculateAge(new Date(dateOfBirth));
-    setAge(age);
 
     const randomNumber = Math.floor(Math.random() * 1000000) + 1;
     setRandomNumber(randomNumber);
@@ -184,18 +170,6 @@ export default function RegisterView() {
             id="email"
             value={email}
             onChange={handleEmailChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="dateOfBirth">Data di nascita</label>
-          <input
-            type="date"
-            className="form-control"
-            id="dateOfBirth"
-            value={dateOfBirth}
-            onChange={handleDateOfBirthChange}
             required
           />
         </div>

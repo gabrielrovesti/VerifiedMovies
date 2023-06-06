@@ -17,7 +17,26 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: '0.8.19'
+        version: '0.8.19', 
+          settings: {
+            optimizer: {
+                enabled: true,
+                details: {
+                    peephole: true,
+                    inliner: true,
+                    jumpdestRemover: true,
+                    orderLiterals: true,
+                    deduplicate: true,
+                    cse: true,
+                    constantOptimizer: true,
+                    yul: true,
+                    yulDetails: {
+                        stackAllocation: true,
+                        optimizerSteps: "dhfoDgvulfnTUtnIf"
+                    }
+                }
+            }
+        }
       }
     ]
   },
@@ -32,7 +51,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: 1337
     }
-  }
+  },
 }
 
 export default config

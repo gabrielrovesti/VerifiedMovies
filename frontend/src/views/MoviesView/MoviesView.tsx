@@ -46,13 +46,7 @@ export default function MoviesView() {
   const [movieDetailsCopied, setMovieDetailsCopied] = useState(false);
   const [permalinkCopied, setPermalinkCopied] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
-  
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [userData, setUserData] = useState<any>(
-    sessionStorage.getItem('userData')
-      ? JSON.parse(sessionStorage.getItem('userData') || '')
-      : { age: null }
-  );
+
   
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -294,7 +288,7 @@ export default function MoviesView() {
         issuanceDate: new Date().toISOString(),
         credentialSubject: {
           id: userDid,
-          age: userData?.age || null, // Set the age from userData, or default to null if it doesn't exist
+          age: 25,
           type: 'VerifiableCredential',
         } as CredentialSubject,        
         proof: {
@@ -431,6 +425,12 @@ export default function MoviesView() {
       const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
       const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
     
+      /*
+      Non accedo più al Contract ma a DidResolver, usando un metodo che si chiama "ResolveRepresentation" che restituisce un vero e proprio DID Document 
+      (con tutto quello che ci deve essere) di tipo ResolutionResult (controllare eventuali errori, cioè campi di ResolutionResult del tipo metadata e con la stringa di errore che dice cosa
+      è successo). 
+      */  
+
       const resolutionResult = await contract.methods.resolve(issuerDid).call();
       const didDocument = resolutionResult;
 
@@ -438,7 +438,10 @@ export default function MoviesView() {
         setVerificationStatus('Errore: il DID non è stato trovato');
         return false;
       }
-  
+
+      // Per il resolveChain da DidResolver restituisce un oggetto (?) che rappresenta l'intera prova
+      
+      
       // Check if the user's DID document has the correct issuer as the last node in the chain of trust
       const chainResolutionResult = await contract.methods.resolveChain(issuerDid).call();
       
