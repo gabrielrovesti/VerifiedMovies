@@ -1,16 +1,6 @@
 import {InvalidArgumentError} from "../utils/InvalidArgumentError";
 import {DidResolver} from "./DidResolver";
-import {
-    DereferenceResult,
-    DidDocument,
-    DidDocumentMetadata,
-    DidResolutionResult,
-    DidUrl,
-    DidUrlDereferenceResult,
-    ErrorDereferenceResult,
-    ErrorResolutionResult,
-    SuccessfulDereferenceResult
-} from "./DidTypes";
+import {DereferenceResult,DidDocument,DidDocumentMetadata,DidResolutionResult,DidUrl,DidUrlDereferenceResult,ErrorDereferenceResult,ErrorResolutionResult,SuccessfulDereferenceResult} from "./DidTypes";
 import {InvalidDidError} from "./InvalidDidError";
 
 export class DidUtils {

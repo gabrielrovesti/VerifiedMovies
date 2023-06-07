@@ -7,7 +7,6 @@ import 'stream-http';
 import 'https-browserify';
 import 'os-browserify/browser';
 
-
 export interface JoseHeader {
     alg: string;
     b64: boolean;

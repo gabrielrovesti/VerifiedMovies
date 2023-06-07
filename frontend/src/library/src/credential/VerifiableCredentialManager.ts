@@ -1,12 +1,7 @@
 import {LanguageMap} from "jsonld/jsonld";
 import Web3 from "web3";
 import {DidResolver} from "../resolution/DidResolver";
-import {
-    ResourceType,
-    RevocationStatus,
-    TrustCertification,
-    TrustCertificationStatus
-} from "../resolution/DidTypes";
+import {ResourceType,RevocationStatus,TrustCertification,TrustCertificationStatus} from "../resolution/DidTypes";
 import {DidUtils} from "../resolution/DidUtils";
 import {DateUtils} from "../utils/DateUtils";
 import {InvalidArgumentError} from "../utils/InvalidArgumentError";

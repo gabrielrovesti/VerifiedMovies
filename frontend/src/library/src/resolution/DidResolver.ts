@@ -3,50 +3,18 @@ import {AbiItem, PromiEvent, TransactionReceipt} from "ethereum-abi-types-genera
 import {ContextDefinition, LanguageMap} from "jsonld/jsonld";
 import Web3 from "web3";
 import {Account} from "web3-core";
-import {
-    CertificationCredentialRequest,
-    ChainOfTrustDidSsi,
-    ContractContext,
-    MethodReturnContext,
-    ProofRequest,
-    SendOptions,
-    VerificationmethodResponse
-} from "../../types/ChainOfTrustDidSsi";
+import {CertificationCredentialRequest,ChainOfTrustDidSsi,ContractContext,MethodReturnContext,ProofRequest,SendOptions,VerificationmethodResponse} from "../../types/ChainOfTrustDidSsi";
 import {EcdsaSecp256k1Proof} from "../credential/proof/ecdsa-secp256k1/EcdsaSecp256k1Proof";
-import {
-    EcdsaSecp256k1CreationOptions,
-    EcdsaSecp256k1ProofManager,
-    EcdsaSecp256k1VerificationOptions
-} from "../credential/proof/ecdsa-secp256k1/EcdsaSecp256k1ProofManager";
+import {EcdsaSecp256k1CreationOptions,EcdsaSecp256k1ProofManager,EcdsaSecp256k1VerificationOptions} from "../credential/proof/ecdsa-secp256k1/EcdsaSecp256k1ProofManager";
 import {CredentialStatus, VerifiableCredential} from "../credential/VerifiableCredential";
 import {VerifiableCredentialManager} from "../credential/VerifiableCredentialManager";
 import {DateUtils} from "../utils/DateUtils";
 import {InvalidArgumentError} from "../utils/InvalidArgumentError";
 import {ContextLoader, JsonContextLoader} from "../utils/JsonContextLoaders";
 import {WithContext} from "../utils/JsonLdTypes";
-import {
-    ContentMetadata,
-    DereferenceOptions,
-    DereferenceResult,
-    DidDocument,
-    DidDocumentMetadata,
-    DidResolutionResult,
-    DidUrl,
-    DidUrlDereferenceResult,
-    ErrorDereferenceResult,
-    ErrorResolutionResult,
-    Errors,
-    ResolutionOptions,
-    ResourceType,
-    RevocationStatus,
-    Service,
-    ServiceContructor,
-    SuccessfulMetadata,
-    TrustCertification,
-    TrustCertificationChain,
-    TrustCertificationStatus,
-    VerificationMethod
-} from "./DidTypes";
+import {ContentMetadata,DereferenceOptions,DereferenceResult,DidDocument,DidDocumentMetadata,DidResolutionResult,DidUrl,DidUrlDereferenceResult,ErrorDereferenceResult,
+        ErrorResolutionResult,Errors,ResolutionOptions,ResourceType,RevocationStatus,Service,
+        ServiceContructor,SuccessfulMetadata,TrustCertification,TrustCertificationChain,TrustCertificationStatus,VerificationMethod} from "./DidTypes";
 import {DidUtils} from "./DidUtils";
 import {InvalidTrustCertification} from "./InvalidTrustCertification";
 

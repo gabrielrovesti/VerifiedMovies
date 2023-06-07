@@ -1,7 +1,6 @@
 import {PathLike} from "fs";
 import JsonLd from "jsonld";
 import {RemoteDocument, Url} from "jsonld/jsonld-spec";
-import * as path from "path";
 import {FileUtils} from "./FileUtils";
 import {InvalidArgumentError} from "./InvalidArgumentError";
 
@@ -16,22 +15,8 @@ export enum ContextLoader {
 }
 
 export class JsonContextLoader {
-    public static readonly DEFAULT_DOCUMENT_LOADER = (url: Url) =>
-        JsonLd.documentLoaders.node()(url);
+    public static readonly DEFAULT_DOCUMENT_LOADER = (url: Url) => JsonLd.documentLoaders.node()(url);
 
-    /*
-
-    private static readonly DID_DOCUMENT_LOADER_FUNCTION =
-    private static readonly CHAIN_RESOLUTION_LOADER_FUNCTION =
-
-    private static readonly CERTIFICATION_CREDENTIAL_LOADER_FUNCTION =
-
-    private static readonly DID_RESOLUTION_LOADER_FUNCTION =
-
-    private static readonly REVOCATION_LIST_LOADER_FUNCTION =
-
-
-    */
     private readonly contextsPath: PathLike;
 
     constructor(contextsPath: PathLike) {

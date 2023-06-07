@@ -11,8 +11,9 @@ export default async function CreateIssuers(){
     const web3 = new Web3('http://localhost:8545');
     const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
     const contractChainAddress = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0'
-    
-    const resolver = new DidResolver(web3, ChainOfTrustDidSsi.abi as AbiItemEth[], contractChainAddress);
+
+    const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
+    //const resolver = new DidResolver(web3, ChainOfTrustDidSsi.abi as AbiItemEth[], contractChainAddress);
 
     // Issuers who the Certification Authority trusts and who can create DIDs
     // To see the DIDs, expect to make the "call" after "send", in order to see the data format you are dealing with here
@@ -20,8 +21,8 @@ export default async function CreateIssuers(){
     
     const accounts = await web3.eth.getAccounts();
 
-    const did = await resolver.createNewDid("12345");
-    const contract = new web3.eth.Contract(SelfSovereignIdentity.abi as AbiItem[], contractAddress);
+    const issuer1 = await contract.methods.createDid().send({ from: accounts[1] });
+    //const did = await resolver.createNewDid("12345");
 
     const message = "Trusted Issuers Creation"; // Message to create the signature upon
 
@@ -36,7 +37,6 @@ export default async function CreateIssuers(){
 
     /*
     - Sostituire createChildTrustedDid con updateTrustCertification (ti devi creare una Verifiable Credential e per farlo mi serve un oggetto di classe VerifiableCredentialManager per generarsi la prova)
-    - 
     */
 
     const result_1 = await contract.methods.createChildTrustedDid(childAddress_1, signature).send({from: accounts[1]});
