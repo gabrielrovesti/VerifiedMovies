@@ -53,7 +53,7 @@
 }
   
 .form-control:focus {
-    border-color: #4c78a8;
+    border-color: #334c71;
     box-shadow: 0 0 0 0.2rem rgba(63, 81, 181, 0.25);
 }
   
@@ -61,7 +61,7 @@
     display: inline-block;
     font-weight: 400;
     color: #fff;
-    background-color: #4c78a8;
+    background-color: #334c71;
     border: none;
     border-radius: 4px;
     padding: 1em;
@@ -139,7 +139,7 @@
     display: inline-block;
     font-weight: 400;
     color: #fff;
-    background-color: #4c78a8;
+    background-color: #334c71;
     border: none;
     border-radius: 4px;
     padding: 10px 20px;

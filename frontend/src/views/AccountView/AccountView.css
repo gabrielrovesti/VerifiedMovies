@@ -68,7 +68,7 @@ body {
   padding: 0.75em 1em;
   border: none;
   border-radius: 0.25em;
-  background-color: #4c78a8;
+  background-color: #334c71;
   color: #fff;
   cursor: pointer;
   margin: 0 0.5em;
@@ -119,14 +119,12 @@ body {
     padding: 0.75em 1em;
     border: none;
     border-radius: 0.25em;
-    background-color: #4c78a8;
+    background-color: #334c71;
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s ease;
     box-sizing: border-box;
   }
-  
-
 }
 
 
