@@ -82,3 +82,12 @@ pre: cd into ```/frontend``` and install dependencies with ```npm install```
 - Also, if you need a testing DID, you can use: ```did:ssi-cot-eth:1337:f39fd6e51aad88f6f4ce6ab8827279cfffb92266``` (if contract is deployed on address ```0x5FbDB2315678afecb367f032d93F642f64180aa3```)
 - At startup, login probably won't work, cause there are no users in the database, so you have to register one and then logging in; to proper handle the checks inside, remember to use my DID, which is the one above.
 It should work anyway with others, but this way is compliant to both standards and the smart contract itself
+
+### Future improvements
+
+- The project is a prototype, so it's not perfect, but it's a good starting point for a real world application using SSI and ZKP as a toy example; you can extend it encrypting keys usage, calling a server via HTTPS, etc.
+- The last version of the project configures everything to make the project work importing the complete library code and the ```ChainOfTrustSsi.sol```, the full version of the existing smart contract; that one has everything compliant to standard and the application can be extended using only that code instead. Refer to that in case (I did already the heavy lifting solving all compatibility problems; have fun if you will, already did more than enough). The deploy script already considers that contract too with existing commands.
+
+## Sources
+
+My Bachelor's Degree Thesis written on this: <https://github.com/gabrielrovesti/Stage-e-tesi-UniPD/blob/main/Tesi/tesi.pdf>
